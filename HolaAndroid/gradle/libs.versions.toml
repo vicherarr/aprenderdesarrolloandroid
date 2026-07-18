@@ -57,6 +57,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Desde Room 2.7 las APIs de corrutinas/Flow viven en room-runtime (room-ktx ya no hace falta)
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+# room-testing trae MigrationTestHelper: misma versión que el runtime
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
