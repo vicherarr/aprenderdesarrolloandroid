@@ -50,6 +50,14 @@ Studio + Android SDK cmdline-tools).
   - `40-ia-local-tareas-especializadas-sistema.md` — APIs Especializadas de IA (Resúmenes, Reescritura y Corrección).
   - `41-ia-local-vision-multimodal.md` — Visión Multimodal y Procesamiento de Imágenes en NPU.
   - `42-ia-local-mediapipe-rendimiento.md` — Rendimiento, Cuantización INT4/INT8 y MediaPipe LLM Inference.
+  - `43-navegacion-compose-type-safe.md` — Navegación en Jetpack Compose (`Navigation Compose` & Type-Safe Navigation).
+  - `44-workmanager-y-foreground-services.md` — Tareas en Segundo Plano y Ejecución Persistente (`WorkManager` & Foreground Services).
+  - `45-notificaciones-push-fcm-y-websockets.md` — Notificaciones Push (`FCM`) y Comunicación en Tiempo Real (`WebSockets`).
+  - `46-seguridad-cifrado-r8-certificate-pinning.md` — Cifrado, Seguridad Avanzada y Protección de Código (`EncryptedSharedPreferences`, R8/ProGuard & Certificate Pinning).
+  - `47-compras-integradas-google-play-billing.md` — Monetización y Compras Integradas (`Google Play Billing Library`).
+  - `48-internacionalizacion-i18n-y-rtl.md` — Internacionalización (`i18n`), Soporte RTL e Idioma Per-App.
+  - `49-rendimiento-profiling-y-baseline-profiles.md` — Rendimiento, Profiling y Baseline Profiles (`LeakCanary` & `Macrobenchmark`).
+  - `50-publicacion-google-play-aab-firmado.md` — Publicación y Distribución en Google Play Store (`.aab` y Play Console).
 
 ## Requisitos del equipo
 
