@@ -111,25 +111,103 @@ Nota el parámetro `@ApplicationContext context`: es un **binding por defecto**
 
 > Fuente: [developer.android.com/training/dependency-injection/hilt-android#multiple-bindings](https://developer.android.com/training/dependency-injection/hilt-android)
 
-Tenemos dos `GeneradorSaludo` (formal e informal). Sin más información, Hilt
-fallaría con *duplicate bindings*. La solución es un `@Qualifier` propio:
+### 4.1 El problema que resuelven
+
+Hilt resuelve las dependencias **por tipo**. Cuando el `SaludoViewModel` pide
+un `GeneradorSaludo`, Hilt busca en el grafo quién provee ese tipo. Pero en
+este proyecto hay **dos** implementaciones (formal e informal), y si el módulo
+las bindease sin más:
 
 ```kotlin
-// di/Cualificadores.kt
+@Binds abstract fun a(impl: GeneradorSaludoFormal): GeneradorSaludo
+@Binds abstract fun b(impl: GeneradorSaludoInformal): GeneradorSaludo
+```
+
+la compilación fallaría con `[Dagger/DuplicateBindings]`: hay dos respuestas a
+la misma pregunta y Hilt se niega a adivinar. Es como pedir "un café" donde hay
+café solo y café con leche: falta el apellido.
+
+### 4.2 La solución: ampliar la clave de búsqueda
+
+Un cualificador es una etiqueta que pasa a formar parte de la **clave** con la
+que Hilt indexa el grafo. Sin cualificador la clave es solo el tipo; con él, la
+clave es *tipo + etiqueta*:
+
+```
+Clave del grafo                        →  Qué entrega
+──────────────────────────────────────────────────────────
+@SaludoFormal   + GeneradorSaludo      →  GeneradorSaludoFormal
+@SaludoInformal + GeneradorSaludo      →  GeneradorSaludoInformal
+```
+
+Dos entradas distintas, como dos claves distintas en un mapa: la ambigüedad
+desaparece.
+
+### 4.3 Las tres piezas en el código
+
+**1. Crear la etiqueta** (`di/Cualificadores.kt`). Es una anotación tuya,
+marcada a su vez con `@Qualifier` — eso le dice a Dagger que forma parte de la
+clave:
+
+```kotlin
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class SaludoFormal
 ```
 
-Y se pide así (ver `ui/SaludoViewModel.kt`):
+(`@Retention(BINARY)` solo significa "consérvala en el `.class` para que el
+procesador de anotaciones la vea"; es el valor estándar para cualificadores.)
+
+**2. Etiquetar el binding** (`di/SaludoModule.kt`) — el lado del que *ofrece*:
+
+```kotlin
+@Binds
+@SaludoFormal    // esta oferta se registra bajo la clave (SaludoFormal, GeneradorSaludo)
+abstract fun bindeaSaludoFormal(impl: GeneradorSaludoFormal): GeneradorSaludo
+```
+
+**3. Etiquetar la petición** (`ui/SaludoViewModel.kt`) — el lado del que *pide*:
 
 ```kotlin
 @SaludoFormal private val generadorFormal: GeneradorSaludo,
 @SaludoInformal private val generadorInformal: GeneradorSaludo,
 ```
 
-Existe también `@Named("clave")` (de `javax.inject`), pero los cualificadores
-propios son más seguros: el compilador detecta un typo, con `@Named` no.
+**Regla de oro: la anotación debe estar en los dos lados y coincidir
+exactamente.** Si el módulo binde con `@SaludoFormal` pero el constructor pide
+`GeneradorSaludo` a secas, son claves distintas: Hilt dará
+`[Dagger/MissingBinding]` ("nadie provee `GeneradorSaludo` sin etiqueta"),
+aunque existan dos versiones etiquetadas.
+
+### 4.4 ¿Por qué no `@Named`?
+
+Existe un atajo de serie (`javax.inject.Named`) que hace lo mismo con un
+string:
+
+```kotlin
+@Binds @Named("formal") abstract fun ...
+// y al pedir:
+@Named("formal") private val generador: GeneradorSaludo
+```
+
+Funciona, pero la clave es el string: un typo (`@Named("froma1")`) compila y
+solo revienta después como *missing binding*, sin pista de la causa. Con un
+cualificador propio, el nombre mal escrito **no compila** porque la anotación
+no existe. Por eso la práctica recomendada son cualificadores propios.
+
+### 4.5 Dónde más los verás
+
+Es un patrón constante en proyectos reales — siempre la misma situación:
+**mismo tipo, configuraciones distintas**:
+
+- Dos `CoroutineDispatcher`: `@IoDispatcher` / `@MainDispatcher`
+- Dos `Retrofit` apuntando a APIs distintas: `@ApiPublica` / `@ApiInterna`
+- Dos `OkHttpClient`: con y sin autenticación
+
+Y de hecho ya usamos uno sin declararlo: `@ApplicationContext Context` (en
+`di/AppModule.kt`) es un cualificador que trae Hilt para distinguir el
+`Context` de aplicación del de Activity (`@ActivityContext`) — mismo tipo
+`Context`, dos orígenes distintos.
 
 ## 5. Scopes: quién comparte instancia y cuánto vive
 
