@@ -1,5 +1,7 @@
 package com.aprender.holaandroid.testutil
 
+import com.aprender.holaandroid.data.local.FraseDao
+import com.aprender.holaandroid.data.local.FraseEntity
 import com.aprender.holaandroid.data.repository.ContadorRepository
 import com.aprender.holaandroid.data.repository.FraseRepository
 import com.aprender.holaandroid.domain.frase.Frase
@@ -27,6 +29,24 @@ class FakeFraseRepository : FraseRepository {
     override suspend fun alternarFavorita(id: Int) {
         guardadas.value = guardadas.value.map {
             if (it.id == id) it.copy(esFavorita = !it.esFavorita) else it
+        }
+    }
+}
+
+/** Fake con estado: una "tabla" en memoria que reproduce el contrato del DAO. */
+class FakeFraseDao : FraseDao {
+    private val tabla = MutableStateFlow<List<FraseEntity>>(emptyList())
+
+    override suspend fun insertar(frase: FraseEntity) {
+        // Reproduce el upsert de OnConflictStrategy.REPLACE
+        tabla.value = tabla.value.filterNot { it.id == frase.id } + frase
+    }
+
+    override fun observarTodas(): Flow<List<FraseEntity>> = tabla
+
+    override suspend fun alternarFavorita(id: Int) {
+        tabla.value = tabla.value.map {
+            if (it.id == id) it.copy(favorita = !it.favorita) else it
         }
     }
 }

@@ -1,12 +1,9 @@
 package com.aprender.holaandroid.data.repository
 
-import com.aprender.holaandroid.data.local.FraseDao
-import com.aprender.holaandroid.data.local.FraseEntity
 import com.aprender.holaandroid.data.remote.FraseDto
 import com.aprender.holaandroid.data.remote.FrasesApi
 import com.aprender.holaandroid.domain.frase.Frase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.aprender.holaandroid.testutil.FakeFraseDao
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -18,6 +15,9 @@ import org.junit.Test
  * interfaces (una la implementa Retrofit, otra Room... en producción; aquí,
  * dos fakes en memoria). Se prueba COMPORTAMIENTO: qué guarda, qué mapea.
  *
+ * El FakeFraseDao nació privado aquí (guía 10) y se promocionó a testutil/
+ * cuando el test de integración de red lo necesitó (guía 12).
+ *
  * Nota: el repositorio llama a Timber. Sin árboles plantados es un no-op,
  * así que no explota — con android.util.Log directo, este test moriría con
  * "Method d in android.util.Log not mocked" (dividendo de la guía 09).
@@ -26,24 +26,6 @@ class DefaultFraseRepositoryTest {
 
     private class FakeFrasesApi(private val respuesta: FraseDto) : FrasesApi {
         override suspend fun obtenerFraseAleatoria(): FraseDto = respuesta
-    }
-
-    /** Fake con estado: una "tabla" en memoria detrás de un StateFlow. */
-    private class FakeFraseDao : FraseDao {
-        private val tabla = MutableStateFlow<List<FraseEntity>>(emptyList())
-
-        override suspend fun insertar(frase: FraseEntity) {
-            // Reproduce el upsert de OnConflictStrategy.REPLACE
-            tabla.value = tabla.value.filterNot { it.id == frase.id } + frase
-        }
-
-        override fun observarTodas(): Flow<List<FraseEntity>> = tabla
-
-        override suspend fun alternarFavorita(id: Int) {
-            tabla.value = tabla.value.map {
-                if (it.id == id) it.copy(favorita = !it.favorita) else it
-            }
-        }
     }
 
     private val dto = FraseDto(id = 42, texto = "texto", autor = "autora")

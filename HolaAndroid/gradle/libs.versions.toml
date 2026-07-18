@@ -51,6 +51,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+# MockWebServer va en lockstep con OkHttp: misma versión SIEMPRE
+okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 # Desde Room 2.7 las APIs de corrutinas/Flow viven en room-runtime (room-ktx ya no hace falta)
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
