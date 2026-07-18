@@ -234,7 +234,199 @@ UI         viewModel.cargarFrase()                     ▼
 | `CleartextNotPermittedException` | baseUrl con `http://`: usa HTTPS |
 | La UI se queda "cargando" para siempre tras rotar | el estado de carga vivía en el composable y no en el ViewModel |
 
-## 8. Verificar
+## 8. Retrofit avanzado
+
+La lección usa el caso mínimo (un `@GET` sin parámetros). Esta sección cubre
+lo que aparece en cuanto la API crece. Los ejemplos usan endpoints reales de
+`dummyjson.com`, así que se pueden probar tal cual.
+
+### 8.1 Anotaciones para construir peticiones
+
+| Anotación | Qué hace | Ejemplo |
+|---|---|---|
+| `@Path` | sustituye un segmento de la URL | `quotes/{id}` |
+| `@Query` | añade un parámetro `?clave=valor` | `quotes?limit=2&skip=10` |
+| `@QueryMap` | varios parámetros de golpe desde un `Map` | filtros opcionales |
+| `@Body` | serializa un objeto como cuerpo (JSON) | `POST` de un formulario |
+| `@FormUrlEncoded` + `@Field` | cuerpo `application/x-www-form-urlencoded` | logins clásicos |
+| `@Multipart` + `@Part` | subida de ficheros | imágenes |
+| `@Header` / `@HeaderMap` | cabecera con valor dinámico por llamada | `Authorization` |
+| `@Headers("...")` | cabeceras fijas del endpoint | `Cache-Control` |
+| `@Url` | la función recibe la URL completa, ignora `baseUrl` | URLs que devuelve el servidor |
+| `@Streaming` | no carga el cuerpo entero en memoria | descargas grandes |
+
+En código, contra la misma API de la lección:
+
+```kotlin
+interface FrasesApi {
+
+    @GET("quotes/random")
+    suspend fun obtenerFraseAleatoria(): FraseDto
+
+    // GET https://dummyjson.com/quotes/42
+    @GET("quotes/{id}")
+    suspend fun obtenerFrase(@Path("id") id: Int): FraseDto
+
+    // GET https://dummyjson.com/quotes?limit=2&skip=10  (paginación)
+    @GET("quotes")
+    suspend fun obtenerFrases(
+        @Query("limit") limite: Int? = null,
+        @Query("skip") saltar: Int? = null,
+    ): PaginaFrasesDto   // {"quotes":[...],"total":1454,"skip":10,"limit":2}
+
+    // POST con cuerpo JSON (Retrofit lo serializa con el conversor configurado)
+    @POST("auth/login")
+    suspend fun login(@Body credenciales: CredencialesDto): SesionDto
+}
+```
+
+Detalles finos:
+
+- `@Path` exige que el nombre coincida con el hueco `{id}` de la ruta;
+  Retrofit valida la interfaz al crearla y lanza excepción si no cuadran.
+- Un `@Query` con valor `null` **se omite** de la URL — por eso los filtros
+  opcionales se declaran `@Query("q") texto: String? = null`.
+- `@Body` y `@FormUrlEncoded` son excluyentes: un cuerpo o el otro.
+
+### 8.2 Tres formas de declarar lo que devuelve una función
+
+```kotlin
+suspend fun obtener(): FraseDto            // 1. el objeto directamente
+suspend fun obtener(): Response<FraseDto>  // 2. la respuesta HTTP completa
+fun obtener(): Call<FraseDto>              // 3. control manual (sin suspend)
+```
+
+1. **El objeto directo** es lo que usa la lección. Si el servidor responde
+   4xx/5xx, Retrofit lanza `retrofit2.HttpException` — que nuestro
+   `try/catch` del caso de uso ya convierte en `Result.failure`. Se puede
+   afinar el mensaje de error distinguiéndola:
+
+   ```kotlin
+   catch (e: HttpException) {
+       // e.code() → 404, 500...; e.response()?.errorBody() → cuerpo del error
+       Result.failure(e)
+   }
+   ```
+
+2. **`Response<T>`** no lanza nada en 4xx/5xx: expone `isSuccessful`,
+   `code()`, `headers()` y `errorBody()`. Útil cuando el cuerpo de error trae
+   información que hay que leer (dummyjson responde
+   `{"message":"Quote with id '9999' not found"}` con el 404) o cuando
+   importan las cabeceras — dummyjson envía `x-ratelimit-remaining`, que solo
+   se puede leer por esta vía.
+
+3. **`Call<T>`** es la API previa a las corrutinas: `enqueue()` con callbacks
+   y `cancel()` manual. Con `suspend` no se necesita — la cancelación de la
+   corrutina ya cancela la petición HTTP en vuelo.
+
+Regla práctica: objeto directo por defecto; `Response<T>` solo donde haga
+falta mirar la respuesta HTTP; `Call<T>` nunca en código nuevo con corrutinas.
+
+### 8.3 Interceptores: dónde se resuelven los problemas transversales
+
+Un interceptor ve (y puede modificar) **todas** las peticiones y respuestas
+del cliente. El de logging es el ejemplo trivial; los casos serios:
+
+**Añadir autenticación a todo** (proactivo) — un interceptor de aplicación
+que mete la cabecera antes de cada petición:
+
+```kotlin
+class AuthInterceptor(private val proveedorToken: () -> String?) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val token = proveedorToken() ?: return chain.proceed(chain.request())
+        val peticion = chain.request().newBuilder()
+            .header("Authorization", "Bearer $token")
+            .build()
+        return chain.proceed(peticion)
+    }
+}
+```
+
+**Renovar el token cuando caduca** (reactivo) — para eso OkHttp tiene una
+pieza específica, `Authenticator`: se invoca **solo** cuando el servidor
+responde `401`, permite pedir un token nuevo y reintenta la petición original
+con él. La pareja interceptor (pone el token) + authenticator (lo renueva) es
+el patrón estándar de sesión con refresh.
+
+**`addInterceptor` vs `addNetworkInterceptor`**: el de aplicación se ejecuta
+una vez por llamada, antes de caché y redirecciones (ahí van auth y logging);
+el de red se ejecuta por cada petición que realmente sale por el cable,
+después de la caché — ve la petición tal y como viaja.
+
+Y el matiz de producción que la lección dejó apuntado, resuelto con
+`BuildConfig`:
+
+```kotlin
+level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+        else HttpLoggingInterceptor.Level.NONE
+```
+
+### 8.4 Timeouts: los valores por defecto y cuándo tocarlos
+
+OkHttp trae 10 segundos de `connectTimeout`, `readTimeout` y `writeTimeout`,
+y `callTimeout` desactivado (0 = sin límite para la llamada completa,
+reintentos y redirecciones incluidos):
+
+```kotlin
+OkHttpClient.Builder()
+    .connectTimeout(10, TimeUnit.SECONDS)  // abrir la conexión TCP/TLS
+    .readTimeout(10, TimeUnit.SECONDS)     // silencio máximo esperando datos
+    .writeTimeout(10, TimeUnit.SECONDS)    // silencio máximo enviando datos
+    .callTimeout(30, TimeUnit.SECONDS)     // techo total de la llamada
+    .build()
+```
+
+Los tres primeros miden *inactividad*, no duración total: una descarga lenta
+pero constante no dispara `readTimeout`. Si se necesita un techo absoluto
+("esta llamada nunca más de 30 s"), eso es `callTimeout`. Además,
+`retryOnConnectionFailure` viene activado: ante ciertos fallos de conexión
+OkHttp reintenta solo, con otra ruta o conexión del pool.
+
+### 8.5 Caché HTTP de OkHttp (y en qué se diferencia de Room)
+
+OkHttp puede cachear respuestas en disco respetando las cabeceras
+`Cache-Control` del servidor:
+
+```kotlin
+OkHttpClient.Builder()
+    .cache(Cache(File(context.cacheDir, "http_cache"), 10L * 1024 * 1024)) // 10 MiB
+    .build()
+```
+
+Es transparente (la app no cambia) pero **manda el servidor**: solo se
+reutilizan respuestas con cabeceras de frescura (`Cache-Control`, `Expires`).
+dummyjson no las envía — verificado con `curl -I`: solo un `ETag` débil, que
+como mucho permite revalidar, no ahorrarse la petición. Por eso la caché HTTP
+no sustituye a una caché propia con Room: la primera optimiza red que el
+servidor permite reutilizar; la segunda da acceso sin conexión bajo las
+reglas de la app. Son complementarias, y Room es la próxima lección.
+
+### 8.6 Lo que Retrofit hace por debajo (y conviene saber)
+
+- `retrofit.create()` no genera código: crea un **proxy dinámico** que
+  traduce cada llamada leyendo las anotaciones. La validación de una función
+  ocurre la primera vez que se la llama; con
+  `Retrofit.Builder().validateEagerly(true)` (en debug) se valida toda la
+  interfaz al crearla y los errores de anotaciones aparecen al arrancar, no
+  al pulsar el botón.
+- Si se registran **varios conversores**, Retrofit los prueba en orden de
+  registro y usa el primero que sepa manejar el tipo — relevante al mezclar
+  JSON con, por ejemplo, `ScalarsConverterFactory` para respuestas de texto
+  plano.
+- Con `suspend`, Retrofit ya ejecuta en su pool de hilos: **no** hace falta
+  (ni conviene) envolver las llamadas en `withContext(Dispatchers.IO)`.
+
+### 8.7 Probar la capa de red sin internet: MockWebServer
+
+Apunte para cuando lleguen los tests: el equipo de OkHttp publica
+`com.squareup.okhttp3:mockwebserver` (misma versión que OkHttp), un servidor
+HTTP real que corre en el test. Se encolan respuestas
+(`enqueue(MockResponse().setBody(json))`), se apunta el `baseUrl` de Retrofit
+al servidor local y se ejercita el stack completo — interfaz, conversor,
+interceptores — sin tocar la red ni mockear Retrofit. Es la razón por la que
+`BASE_URL` no debe estar incrustada donde no se pueda sustituir.
+
+## 9. Verificar
 
 ```bash
 cd HolaAndroid && ./gradlew installDebug
@@ -248,9 +440,15 @@ distinta (endpoint aleatorio).
 ## Fuentes consultadas (18-07-2026)
 
 - Retrofit (README oficial, v3.0.0): <https://github.com/square/retrofit>
+- Retrofit (anotaciones y declaración de la API): <https://square.github.io/retrofit/>
 - Conversor kotlinx-serialization de Retrofit: <https://github.com/square/retrofit/tree/trunk/retrofit-converters/kotlinx-serialization>
 - kotlinx.serialization (guía oficial): <https://github.com/Kotlin/kotlinx.serialization>
 - OkHttp (interceptores/logging): <https://square.github.io/okhttp/features/interceptors/>
+- OkHttp (caché HTTP): <https://square.github.io/okhttp/features/caching/>
+- OkHttp (`Authenticator` para 401): <https://square.github.io/okhttp/recipes/#handling-authentication-kt-java>
+- MockWebServer: <https://github.com/square/okhttp/tree/master/mockwebserver>
+- Endpoints de dummyjson usados en §8 (`/quotes/{id}`, `/quotes?limit&skip`,
+  el 404 y las cabeceras): verificados con `curl` el 18-07-2026
 - Permiso de Internet: <https://developer.android.com/develop/connectivity/network-ops/connecting>
 - Modelo por capa y capa de datos: <https://developer.android.com/topic/architecture/data-layer>
 - Versiones: Maven Central (`search.maven.org`, consultas de la guía 03)
