@@ -26,6 +26,9 @@ timber = "5.0.1"
 # coroutines-test: MISMA serie que las corrutinas que resuelve el proyecto
 # (ver ./gradlew app:dependencies | grep kotlinx-coroutines-core → 1.8.1)
 kotlinxCoroutinesTest = "1.8.1"
+# Turbine: 1.1.0 está compilada contra coroutines 1.8.0 (nuestra serie);
+# la 1.2.0 arrastra la 1.9.0 (verificado en su POM de Maven Central)
+turbine = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +57,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
