@@ -35,6 +35,16 @@ Studio + Android SDK cmdline-tools).
   - `25-gestos-y-diseno-responsive.md` — Gestos Táctiles y Diseño Adaptativo (`pointerInput`, `WindowSizeClass`).
   - `26-integracion-profunda-material3.md` — Integración Profunda de Material 3 y Tokens de Diseño.
   - `27-librerias-y-componentes-de-terceros.md` — Librerías y Componentes UI de Terceros para Producción.
+  - `28-hardware-gps-y-ubicacion.md` — GPS y Geolocalización (`FusedLocationProviderClient`).
+  - `29-hardware-sensores-movimiento-y-posicion.md` — Sensores de Movimiento y Posición (Acelerómetro, Giroscopio, Brújula, Podómetro).
+  - `30-hardware-sensores-ambientales-y-proximidad.md` — Sensores Ambientales y de Proximidad (Luz, Proximidad, Barómetro).
+  - `31-hardware-camara-camerax-y-flash.md` — Cámara, CameraX, Escaneo de Códigos y Flash.
+  - `32-hardware-microfono-y-audio.md` — Micrófono y Captura de Audio (`MediaRecorder`, `AudioRecord`).
+  - `33-hardware-biometria-y-keystore.md` — Autenticación Biométrica y Android KeyStore (`BiometricPrompt`).
+  - `34-hardware-bluetooth-y-ble.md` — Bluetooth y Bluetooth Low Energy (BLE).
+  - `35-hardware-nfc-lectura-escritura.md` — NFC (Near Field Communication) Lectura y Escritura.
+  - `36-hardware-bateria-haptica-y-termico.md` — Batería, Motores Hápticos y Estado Térmico.
+  - `37-hardware-usb-salud-y-pantalla.md` — Periféricos USB Host, Pantalla y Sensores de Salud.
 
 ## Requisitos del equipo
 
