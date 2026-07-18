@@ -16,22 +16,38 @@ patrón repositorio y estado de UI inmutable.
 
 > Fuente: [developer.android.com/topic/architecture](https://developer.android.com/topic/architecture)
 
+Dibujamos los datos arriba (donde nacen) y al usuario abajo: **el estado baja
+como el agua desde el manantial; los eventos suben desde el usuario**.
+
 ```
-┌─────────────────────┐
-│      UI Layer        │  pinta estado y captura eventos (Compose + ViewModel)
-└─────────┬───────────┘
-          │ depende de
-┌─────────▼───────────┐
-│   Domain Layer       │  (OPCIONAL) lógica de negocio reutilizable: casos de uso
-└─────────┬───────────┘
-          │ depende de
-┌─────────▼───────────┐
-│     Data Layer       │  repositorios + fuentes de datos; dueña de los datos
-└─────────────────────┘
+              (aquí NACEN los datos)
+┌────────────────────────────────────────────┐
+│                 Data Layer                 │  repositorios + fuentes de datos; dueña de los datos
+└────────────────────────────────────────────┘
+        ▲                          │
+        │ peticiones               │ datos / estado
+        │ (llamadas)               ▼
+┌────────────────────────────────────────────┐
+│           Domain Layer (opcional)          │  lógica de negocio reutilizable: casos de uso
+└────────────────────────────────────────────┘
+        ▲                          │
+        │ eventos                  │ estado (UiState)
+        │ (onClick...)             ▼
+┌────────────────────────────────────────────┐
+│                  UI Layer                  │  Compose + ViewModel
+└────────────────────────────────────────────┘
+              (aquí está el USUARIO)
 ```
 
-Las flechas de dependencia solo apuntan **hacia abajo**: la UI conoce el
-dominio, el dominio conoce los datos, y nunca al revés.
+Sobre las dependencias ("quién conoce a quién"): la UI conoce al dominio, el
+dominio a los datos, y los datos **no conocen a nadie**. Es decir, en este
+dibujo las dependencias apuntan hacia arriba, siempre hacia la capa más
+estable.
+
+> Nota: la documentación oficial dibuja el mismo diagrama invertido (UI
+> arriba, datos abajo). Las capas y las reglas son idénticas; solo cambia la
+> orientación del dibujo. Aquí usamos "datos arriba" porque hace literal la
+> frase clave del UDF: *el estado fluye hacia abajo, los eventos hacia arriba*.
 
 Los tres principios que sostienen el patrón (transcritos de la fuente):
 
@@ -194,15 +210,20 @@ Activity/recursos, con ámbito de pantalla, y evitando `AndroidViewModel`.
 ## 6. Cómo se comunican las capas entre sí (en ambos sentidos)
 
 Aquí está la clave de toda la arquitectura, y lo que más confunde al
-principio: **las dependencias apuntan en un solo sentido (hacia abajo), pero
-los datos viajan en los dos**. ¿Cómo puede subir información si la capa de
-datos no conoce a nadie de arriba? Con dos mecanismos distintos, uno por
-sentido.
+principio: **las referencias van en un solo sentido (la UI conoce a los
+datos), pero la información viaja en los dos**. Recuerda la orientación de
+nuestro dibujo (sección 1): datos arriba, usuario abajo. Entonces:
 
-### 6.1 Hacia abajo: llamadas a métodos de dependencias inyectadas
+- **Suben** los eventos y las peticiones: del usuario hacia los datos.
+- **Baja** el estado: de los datos hacia la pantalla.
 
-El sentido descendente es el fácil: cada capa recibe por constructor (Hilt) una
-referencia a la capa inferior y **la llama como a cualquier objeto**. La cadena
+¿Cómo puede bajar información si la capa de datos no conoce a nadie de las
+capas de abajo? Con dos mecanismos distintos, uno por sentido.
+
+### 6.1 La subida (UI → datos): llamadas a dependencias inyectadas
+
+El sentido de subida es el fácil: cada capa recibe por constructor (Hilt) una
+referencia a la capa superior y **la llama como a cualquier objeto**. La cadena
 completa en nuestro proyecto:
 
 ```kotlin
@@ -224,30 +245,31 @@ override fun incrementar() {
 }
 ```
 
-Una pulsación de botón recorre UI → dominio → datos como llamadas normales
-encadenadas. Fíjate en el detalle: cada capa conoce a la de abajo **por su
+Una pulsación de botón sube UI → dominio → datos como llamadas normales
+encadenadas. Fíjate en el detalle: cada capa conoce a la siguiente **por su
 contrato** (la interfaz `ContadorRepository`), nunca por su clase concreta.
 
-### 6.2 Hacia arriba: los datos suben, las referencias no
+### 6.2 La bajada (datos → UI): el estado baja, las referencias no existen
 
 La capa de datos **no tiene ni un solo import de dominio o UI** (compruébalo:
 `grep -r "import com.aprender.holaandroid.ui" app/src/main/java/com/aprender/holaandroid/data/`
-no devuelve nada). Entonces, ¿cómo sube la información? Por dos vías:
+no devuelve nada). Entonces, ¿cómo baja la información hasta la pantalla? Por
+dos vías:
 
-**Vía 1 — El valor de retorno** (petición puntual): la llamada baja, el
-resultado sube por el `return`. Es el caso de `ObtenerSaludoUseCase`:
+**Vía 1 — El valor de retorno** (petición puntual): la petición sube, el
+resultado baja por el `return`. Es el caso de `ObtenerSaludoUseCase`:
 
 ```kotlin
-// baja la petición (nombre, esFormal)... y sube el String como retorno
+// sube la petición (nombre, esFormal)... y baja el String como retorno
 val texto: String = obtenerSaludo(nombre, formal)
 ```
 
 Si la operación fuera lenta (red, disco), el mecanismo es el mismo pero con
-`suspend fun`: la corrutina espera sin bloquear y el valor sube igual.
+`suspend fun`: la corrutina espera sin bloquear y el valor baja igual.
 
 **Vía 2 — El flujo observable** (dato que cambia a lo largo del tiempo): el
 repositorio expone un `StateFlow` que **él mismo posee y alimenta**, y las
-capas superiores se suscriben. Es el caso del contador:
+capas de abajo (dominio, UI) se suscriben. Es el caso del contador:
 
 ```kotlin
 // DATOS: el repositorio emite hacia un canal que es SUYO
@@ -258,32 +280,32 @@ override val contador: StateFlow<Int> = _contador.asStateFlow()
 combine(esFormal, observarContador()) { formal, contador -> ... }
 ```
 
-La suscripción es una llamada **hacia abajo** ("dame tu flujo") que se hace una
-vez; a partir de ahí, cada emisión viaja **hacia arriba** por el canal ya
-abierto. La analogía: te suscribes a una revista una vez (petición hacia
-abajo), y los números te llegan solos a casa cada mes (datos hacia arriba). La
+La suscripción es una llamada que **sube una sola vez** ("dame tu flujo"); a
+partir de ahí, cada emisión **baja** por el canal ya abierto. La analogía: te
+suscribes a una revista una vez (la petición sube a la editorial), y los
+números te llegan solos a casa cada mes (los datos bajan hasta ti). La
 editorial no sabe quién eres ni cuántos suscriptores tiene que avisar: solo
 publica.
 
 Eso es exactamente lo que hace `MutableStateFlow`: el repositorio "publica" el
 nuevo valor en su propio flujo y **no sabe ni le importa** si lo escuchan un
-ViewModel, tres, o nadie. Así los datos suben sin que exista ninguna
-referencia hacia arriba.
+ViewModel, tres, o nadie. Así el estado baja hasta la pantalla sin que exista
+ninguna referencia desde los datos hacia la UI.
 
 ### 6.3 Resumen: qué mecanismo usar para cada necesidad
 
 | Necesidad | Mecanismo | Sentido | Ejemplo en el proyecto |
 |---|---|---|---|
-| Pedir un dato puntual | llamada + valor de retorno (`suspend` si es lenta) | baja la petición, sube el valor | `obtenerSaludo(nombre, formal): String` |
-| Ordenar una acción | llamada que muta el SSOT, sin retorno | solo baja; la "respuesta" llegará por el flujo | `enviarSaludo()` |
-| Observar un dato que cambia | `Flow`/`StateFlow` expuesto por el dueño del dato | la suscripción baja, las emisiones suben | `contador: StateFlow<Int>` |
-| Comunicar un error | excepción o `Result` subiendo por el retorno | sube junto al valor | (lo veremos con red/BD) |
+| Pedir un dato puntual | llamada + valor de retorno (`suspend` si es lenta) | sube la petición, baja el valor | `obtenerSaludo(nombre, formal): String` |
+| Ordenar una acción | llamada que muta el SSOT, sin retorno | solo sube; la "respuesta" bajará por el flujo | `enviarSaludo()` |
+| Observar un dato que cambia | `Flow`/`StateFlow` expuesto por el dueño del dato | la suscripción sube una vez, las emisiones bajan | `contador: StateFlow<Int>` |
+| Comunicar un error | excepción o `Result` que baja por el retorno | baja junto al valor | (lo veremos con red/BD) |
 
-### 6.4 Por qué está prohibida la referencia hacia arriba
+### 6.4 Por qué está prohibido que los datos tengan referencias a la UI
 
-Antes de los flujos, "subir datos" se hacía con **callbacks/listeners**: la
-capa de datos guardaba una referencia a la pantalla para avisarla. Eso causa
-los problemas clásicos de Android:
+Antes de los flujos, "hacer llegar los datos a la pantalla" se hacía con
+**callbacks/listeners**: la capa de datos guardaba una referencia a la
+pantalla para avisarla. Eso causa los problemas clásicos de Android:
 
 - **Fugas de memoria**: el repositorio (singleton, vive siempre) reteniendo
   una Activity destruida.
@@ -298,22 +320,27 @@ suscribe y se des-suscribe según su ciclo de vida — justo lo que
 
 ### 6.5 El circuito completo: qué pasa al pulsar "Enviar saludo"
 
-Juntando los dos sentidos, el UDF en acción:
+Juntando los dos sentidos, con la misma orientación del dibujo de la
+sección 1 (datos arriba, usuario abajo):
 
 ```
-[Botón]  onClick ──► viewModel.enviarSaludo()            (evento, baja: llamada)
-                        └─► EnviarSaludoUseCase()
-                              └─► ContadorRepository.incrementar()
-                                    ├─► LocalDataSource.guardar(n)   (persiste)
-                                    └─► _contador.value = n          (el SSOT publica)
-[Pantalla] ◄── recompone ◄── uiState nuevo ◄── combine reacciona     (estado, sube: emisión)
+DATA      ContadorRepository.incrementar()
+             ├─► LocalDataSource.guardar(n)      (persiste)
+             └─► _contador.value = n             (el SSOT publica)
+              ▲                     │
+DOMAIN    EnviarSaludoUseCase()     │  emisión del flujo
+              ▲                     ▼
+UI        viewModel.enviarSaludo()  combine ─► uiState nuevo ─► recompone
+              ▲                                                    │
+          [Botón] onClick                                    [Pantalla] 👁
+          └────── EVENTO: SUBE ──────┘      └───── ESTADO: BAJA ─────┘
 ```
 
 Nadie "pinta el resultado del click": el click **modifica el dato** en su
-única fuente de verdad, y el nuevo estado fluye solo hasta la pantalla. El
-circuito de bajada (llamadas) y el de subida (emisiones) son independientes;
-por eso el contador sobrevive a rotaciones, a matar la app, y siempre es
-consistente lo mires desde donde lo mires.
+única fuente de verdad (arriba), y el nuevo estado cae solo hasta la pantalla.
+El circuito de subida (llamadas) y el de bajada (emisiones) son
+independientes; por eso el contador sobrevive a rotaciones, a matar la app, y
+siempre es consistente lo mires desde donde lo mires.
 
 ## 7. Qué se movió respecto a la lección 04
 
