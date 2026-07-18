@@ -45,6 +45,11 @@ Studio + Android SDK cmdline-tools).
   - `35-hardware-nfc-lectura-escritura.md` — NFC (Near Field Communication) Lectura y Escritura.
   - `36-hardware-bateria-haptica-y-termico.md` — Batería, Motores Hápticos y Estado Térmico.
   - `37-hardware-usb-salud-y-pantalla.md` — Periféricos USB Host, Pantalla y Sensores de Salud.
+  - `38-ia-local-aicore-introduccion.md` — IA Local On-Device y Android AICore.
+  - `39-ia-local-google-ai-edge-prompts.md` — Google AI Edge SDK y Generación en Streaming.
+  - `40-ia-local-tareas-especializadas-sistema.md` — APIs Especializadas de IA (Resúmenes, Reescritura y Corrección).
+  - `41-ia-local-vision-multimodal.md` — Visión Multimodal y Procesamiento de Imágenes en NPU.
+  - `42-ia-local-mediapipe-rendimiento.md` — Rendimiento, Cuantización INT4/INT8 y MediaPipe LLM Inference.
 
 ## Requisitos del equipo
 
