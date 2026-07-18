@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aprender.holaandroid.domain.saludo.ComponedorTarjetaFactory
+import com.aprender.holaandroid.domain.frase.Frase
+import com.aprender.holaandroid.domain.usecase.AlternarFavoritaUseCase
 import com.aprender.holaandroid.domain.usecase.EnviarSaludoUseCase
 import com.aprender.holaandroid.domain.usecase.ObservarContadorUseCase
 import com.aprender.holaandroid.domain.usecase.ObservarFrasesGuardadasUseCase
@@ -27,6 +29,7 @@ class SaludoViewModel @Inject constructor(
     private val obtenerSaludo: ObtenerSaludoUseCase,
     private val enviarSaludoUseCase: EnviarSaludoUseCase,
     private val obtenerFrase: ObtenerFraseUseCase,
+    private val alternarFavoritaUseCase: AlternarFavoritaUseCase,
     private val tarjetaFactory: ComponedorTarjetaFactory
 ) : ViewModel() {
 
@@ -61,6 +64,11 @@ class SaludoViewModel @Inject constructor(
     }
 
     fun enviarSaludo() = enviarSaludoUseCase()
+
+    /** El UPDATE dispara el Flow de Room: la lista se reordena sola. */
+    fun alternarFavorita(frase: Frase) {
+        viewModelScope.launch { alternarFavoritaUseCase(frase) }
+    }
 
     /**
      * La petición de red se lanza en viewModelScope: si el usuario abandona

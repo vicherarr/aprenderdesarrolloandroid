@@ -18,5 +18,8 @@ data class FraseEntity(
     val texto: String,
     val autor: String,
     // Momento de guardado (epoch millis): permite ordenar por recencia
-    @ColumnInfo(name = "guardada_en") val guardadaEn: Long
+    @ColumnInfo(name = "guardada_en") val guardadaEn: Long,
+    // defaultValue es el DEFAULT de SQL: debe coincidir con el que declara
+    // la migración 1→2, o Room rechazará el esquema al validar (guía 08)
+    @ColumnInfo(defaultValue = "0") val favorita: Boolean = false
 )

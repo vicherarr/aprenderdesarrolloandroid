@@ -1,5 +1,6 @@
 package com.aprender.holaandroid.ui.saludo
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ fun SaludoScreen(viewModel: SaludoViewModel, modifier: Modifier = Modifier) {
         alEnviar = viewModel::enviarSaludo,
         alCambiarTono = viewModel::alternarTono,
         alPedirFrase = viewModel::cargarFrase,
+        alAlternarFavorita = viewModel::alternarFavorita,
         modifier = modifier
     )
 }
@@ -48,6 +50,7 @@ private fun SaludoContent(
     alEnviar: () -> Unit,
     alCambiarTono: () -> Unit,
     alPedirFrase: () -> Unit,
+    alAlternarFavorita: (Frase) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -70,27 +73,38 @@ private fun SaludoContent(
             Text("Frase del día")
         }
         FraseSeccion(uiState.frase)
-        FrasesGuardadasSeccion(uiState.frasesGuardadas, modifier = Modifier.weight(1f))
+        FrasesGuardadasSeccion(
+            frases = uiState.frasesGuardadas,
+            alAlternarFavorita = alAlternarFavorita,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 /**
- * Lo persistido en Room: visible aunque no haya conexión. LazyColumn solo
- * compone las filas visibles (la lista crece con cada frase pedida).
+ * Lo persistido en Room: visible aunque no haya conexión. Un toque en una
+ * frase alterna su estrella; la lista se reordena sola (favoritas primero)
+ * porque el ORDER BY vive en la consulta del DAO, no aquí.
  */
 @Composable
-private fun FrasesGuardadasSeccion(frases: List<Frase>, modifier: Modifier = Modifier) {
+private fun FrasesGuardadasSeccion(
+    frases: List<Frase>,
+    alAlternarFavorita: (Frase) -> Unit,
+    modifier: Modifier = Modifier
+) {
     if (frases.isEmpty()) return
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Guardadas en el dispositivo (${frases.size})",
+            text = "Guardadas en el dispositivo (${frases.size}) — toca una para ★",
             style = MaterialTheme.typography.titleSmall
         )
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(frases) { frase ->
+            items(frases, key = { it.id }) { frase ->
+                val estrella = if (frase.esFavorita) "★ " else ""
                 Text(
-                    text = "“${frase.texto}” — ${frase.autor}",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "$estrella“${frase.texto}” — ${frase.autor}",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.clickable { alAlternarFavorita(frase) }
                 )
             }
         }
@@ -139,13 +153,14 @@ private fun SaludoContentPreview() {
                     autor = "Nietzsche"
                 ),
                 frasesGuardadas = listOf(
-                    Frase("La memoria es el centinela del cerebro.", "Shakespeare"),
-                    Frase("Lo que se guarda, se encuentra.", "Anónimo")
+                    Frase(1, "La memoria es el centinela del cerebro.", "Shakespeare", esFavorita = true),
+                    Frase(2, "Lo que se guarda, se encuentra.", "Anónimo")
                 )
             ),
             alEnviar = {},
             alCambiarTono = {},
-            alPedirFrase = {}
+            alPedirFrase = {},
+            alAlternarFavorita = {}
         )
     }
 }

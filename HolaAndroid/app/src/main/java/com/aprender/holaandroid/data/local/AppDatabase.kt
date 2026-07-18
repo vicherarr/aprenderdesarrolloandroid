@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
  * `version` sube con cada cambio de esquema; el plugin de Gradle exporta el
  * esquema de cada versión a app/schemas/ para poder escribir migraciones.
  */
-@Database(entities = [FraseEntity::class], version = 1)
+@Database(entities = [FraseEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun fraseDao(): FraseDao
 }

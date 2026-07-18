@@ -10,6 +10,9 @@ interface FraseRepository {
      */
     suspend fun obtenerFraseAleatoria(): Frase
 
-    /** Las frases guardadas en el dispositivo, de más a menos reciente. */
+    /** Las frases guardadas: favoritas primero, luego de más a menos reciente. */
     fun observarFrasesGuardadas(): Flow<List<Frase>>
+
+    /** Marca o desmarca una frase guardada como favorita. */
+    suspend fun alternarFavorita(id: Int)
 }

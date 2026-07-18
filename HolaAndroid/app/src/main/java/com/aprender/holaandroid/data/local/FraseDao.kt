@@ -21,6 +21,10 @@ interface FraseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(frase: FraseEntity)
 
-    @Query("SELECT * FROM frases ORDER BY guardada_en DESC")
+    @Query("SELECT * FROM frases ORDER BY favorita DESC, guardada_en DESC")
     fun observarTodas(): Flow<List<FraseEntity>>
+
+    /** NOT sobre un INTEGER 0/1: así se conmuta un booleano en SQLite. */
+    @Query("UPDATE frases SET favorita = NOT favorita WHERE id = :id")
+    suspend fun alternarFavorita(id: Int)
 }

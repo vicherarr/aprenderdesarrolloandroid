@@ -30,7 +30,9 @@ class DefaultFraseRepository @Inject constructor(
     override fun observarFrasesGuardadas(): Flow<List<Frase>> =
         fraseDao.observarTodas().map { entidades -> entidades.map { it.aDominio() } }
 
-    private fun FraseDto.aDominio() = Frase(texto = texto, autor = autor)
+    override suspend fun alternarFavorita(id: Int) = fraseDao.alternarFavorita(id)
+
+    private fun FraseDto.aDominio() = Frase(id = id, texto = texto, autor = autor)
 
     private fun FraseDto.aEntidad() = FraseEntity(
         id = id,
@@ -39,5 +41,6 @@ class DefaultFraseRepository @Inject constructor(
         guardadaEn = System.currentTimeMillis()
     )
 
-    private fun FraseEntity.aDominio() = Frase(texto = texto, autor = autor)
+    private fun FraseEntity.aDominio() =
+        Frase(id = id, texto = texto, autor = autor, esFavorita = favorita)
 }

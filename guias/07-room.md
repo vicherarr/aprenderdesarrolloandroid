@@ -248,7 +248,7 @@ caso de uso y un campo más en el estado.
 | error de compilación citando tu SQL | `@Query` mal escrita — Room valida el SQL al compilar (es una ventaja, no un fastidio) |
 | `Cannot access database on the main thread` | operación de un disparo sin `suspend` llamada desde el hilo principal (no uses `allowMainThreadQueries()`: oculta el problema) |
 | `SQLiteConstraintException: UNIQUE constraint failed` | insert de una clave primaria repetida sin `onConflict` |
-| `IllegalStateException: A migration from 1 to 2 was necessary` | subiste `version` sin proporcionar la migración |
+| `IllegalStateException: A migration from 1 to 2 was required but not found` | subiste `version` sin proporcionar la migración (guía 08, con el error reproducido en vivo) |
 | `Room cannot verify the data integrity` | cambiaste el esquema SIN subir `version` (típico en desarrollo: desinstala la app o sube la versión) |
 | La lista no se actualiza sola | la consulta devuelve `List` en vez de `Flow<List>` (una foto, no un flujo) |
 
