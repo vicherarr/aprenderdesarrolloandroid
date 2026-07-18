@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,9 +44,10 @@ fun SaludoScreen(viewModel: SaludoViewModel, modifier: Modifier = Modifier) {
 /**
  * Pantalla "sin estado": solo recibe datos y callbacks. Es trivial de
  * previsualizar y de testear porque no depende de nada.
+ * internal (no private): los tests de UI del módulo la componen directamente.
  */
 @Composable
-private fun SaludoContent(
+internal fun SaludoContent(
     uiState: SaludoUiState,
     alEnviar: () -> Unit,
     alCambiarTono: () -> Unit,
@@ -122,7 +124,8 @@ private fun FraseSeccion(frase: FraseUiState, modifier: Modifier = Modifier) {
             )
 
         FraseUiState.Cargando ->
-            CircularProgressIndicator(modifier = modifier.size(28.dp))
+            // testTag: ancla para tests de UI en nodos sin texto (guía 14)
+            CircularProgressIndicator(modifier = modifier.size(28.dp).testTag("cargando"))
 
         is FraseUiState.Exito -> {
             Text(text = "“${frase.texto}”", style = MaterialTheme.typography.bodyMedium)
