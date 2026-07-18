@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.aprender.holaandroid.domain.saludo.ComponedorTarjetaFactory
 import com.aprender.holaandroid.domain.usecase.EnviarSaludoUseCase
 import com.aprender.holaandroid.domain.usecase.ObservarContadorUseCase
+import com.aprender.holaandroid.domain.usecase.ObtenerFraseUseCase
 import com.aprender.holaandroid.domain.usecase.ObtenerSaludoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,32 +16,31 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-/**
- * El ViewModel orquesta casos de uso y expone UN único StateFlow<UiState>
- * (recomendación oficial). Los eventos de la UI entran como funciones
- * (alternarTono, enviarSaludo): flujo de datos unidireccional.
- */
 @HiltViewModel
 class SaludoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     observarContador: ObservarContadorUseCase,
     private val obtenerSaludo: ObtenerSaludoUseCase,
     private val enviarSaludoUseCase: EnviarSaludoUseCase,
+    private val obtenerFrase: ObtenerFraseUseCase,
     private val tarjetaFactory: ComponedorTarjetaFactory
 ) : ViewModel() {
 
     private val nombre: String = savedStateHandle["nombre"] ?: "Android"
 
     private val esFormal = MutableStateFlow(true)
+    private val fraseState = MutableStateFlow<FraseUiState>(FraseUiState.Inicial)
 
     val uiState: StateFlow<SaludoUiState> =
-        combine(esFormal, observarContador()) { formal, contador ->
+        combine(esFormal, observarContador(), fraseState) { formal, contador, frase ->
             SaludoUiState(
                 saludo = obtenerSaludo(nombre, formal),
                 contador = contador,
                 esFormal = formal,
-                tarjeta = tarjetaFactory.crear(nombre).componer()
+                tarjeta = tarjetaFactory.crear(nombre).componer(),
+                frase = frase
             )
         }.stateIn(
             scope = viewModelScope,
@@ -53,4 +53,23 @@ class SaludoViewModel @Inject constructor(
     }
 
     fun enviarSaludo() = enviarSaludoUseCase()
+
+    /**
+     * La petición de red se lanza en viewModelScope: si el usuario abandona
+     * la pantalla, la corrutina se cancela sola (cancelación estructurada).
+     */
+    fun cargarFrase() {
+        viewModelScope.launch {
+            fraseState.value = FraseUiState.Cargando
+            obtenerFrase().fold(
+                onSuccess = { frase ->
+                    fraseState.value = FraseUiState.Exito(frase.texto, frase.autor)
+                },
+                onFailure = {
+                    fraseState.value =
+                        FraseUiState.Error("No se pudo cargar la frase. ¿Hay conexión?")
+                }
+            )
+        }
+    }
 }

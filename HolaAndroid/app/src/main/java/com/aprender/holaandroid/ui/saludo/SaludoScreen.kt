@@ -3,7 +3,9 @@ package com.aprender.holaandroid.ui.saludo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ fun SaludoScreen(viewModel: SaludoViewModel, modifier: Modifier = Modifier) {
         uiState = uiState,
         alEnviar = viewModel::enviarSaludo,
         alCambiarTono = viewModel::alternarTono,
+        alPedirFrase = viewModel::cargarFrase,
         modifier = modifier
     )
 }
@@ -41,6 +44,7 @@ private fun SaludoContent(
     uiState: SaludoUiState,
     alEnviar: () -> Unit,
     alCambiarTono: () -> Unit,
+    alPedirFrase: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -56,6 +60,40 @@ private fun SaludoContent(
         OutlinedButton(onClick = alCambiarTono) {
             Text(if (uiState.esFormal) "Cambiar a tono informal" else "Cambiar a tono formal")
         }
+        OutlinedButton(
+            onClick = alPedirFrase,
+            enabled = uiState.frase != FraseUiState.Cargando
+        ) {
+            Text("Frase del día")
+        }
+        FraseSeccion(uiState.frase)
+    }
+}
+
+/** El when es exhaustivo: si mañana FraseUiState gana un caso, esto no compila. */
+@Composable
+private fun FraseSeccion(frase: FraseUiState, modifier: Modifier = Modifier) {
+    when (frase) {
+        FraseUiState.Inicial ->
+            Text(
+                text = "Pulsa \"Frase del día\" para pedir una a la red.",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+        FraseUiState.Cargando ->
+            CircularProgressIndicator(modifier = modifier.size(28.dp))
+
+        is FraseUiState.Exito -> {
+            Text(text = "“${frase.texto}”", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "— ${frase.autor}", style = MaterialTheme.typography.labelMedium)
+        }
+
+        is FraseUiState.Error ->
+            Text(
+                text = frase.mensaje,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
     }
 }
 
@@ -68,10 +106,15 @@ private fun SaludoContentPreview() {
                 saludo = "Buenas tardes, Android.",
                 contador = 3,
                 esFormal = true,
-                tarjeta = "Tarjeta para Android — saludos enviados: 3"
+                tarjeta = "Tarjeta para Android — saludos enviados: 3",
+                frase = FraseUiState.Exito(
+                    texto = "El que tiene un porqué puede soportar casi cualquier cómo.",
+                    autor = "Nietzsche"
+                )
             ),
             alEnviar = {},
-            alCambiarTono = {}
+            alCambiarTono = {},
+            alPedirFrase = {}
         )
     }
 }
