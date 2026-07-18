@@ -34,6 +34,7 @@ Studio + Android SDK cmdline-tools).
   - `24-canvas-y-dibujo-personalizado.md` — Dibujo Personalizado y Canvas (`Canvas`, `Path`, `Brush`).
   - `25-gestos-y-diseno-responsive.md` — Gestos Táctiles y Diseño Adaptativo (`pointerInput`, `WindowSizeClass`).
   - `26-integracion-profunda-material3.md` — Integración Profunda de Material 3 y Tokens de Diseño.
+  - `27-librerias-y-componentes-de-terceros.md` — Librerías y Componentes UI de Terceros para Producción.
 
 ## Requisitos del equipo
 
