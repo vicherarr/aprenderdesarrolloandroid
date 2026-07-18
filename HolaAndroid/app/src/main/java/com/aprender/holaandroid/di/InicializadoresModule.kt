@@ -1,8 +1,8 @@
 package com.aprender.holaandroid.di
 
-import com.aprender.holaandroid.data.Inicializador
-import com.aprender.holaandroid.data.PrimerArranqueInicializador
-import com.aprender.holaandroid.data.RegistroInicializador
+import com.aprender.holaandroid.core.inicializacion.Inicializador
+import com.aprender.holaandroid.core.inicializacion.PrimerArranqueInicializador
+import com.aprender.holaandroid.core.inicializacion.RegistroInicializador
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

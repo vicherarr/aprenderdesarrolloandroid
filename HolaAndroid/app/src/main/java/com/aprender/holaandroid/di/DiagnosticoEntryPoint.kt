@@ -1,7 +1,7 @@
 package com.aprender.holaandroid.di
 
 import android.content.Context
-import com.aprender.holaandroid.data.ContadorRepository
+import com.aprender.holaandroid.data.repository.ContadorRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors

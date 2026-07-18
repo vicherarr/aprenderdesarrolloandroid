@@ -1,13 +1,12 @@
-package com.aprender.holaandroid.data
+package com.aprender.holaandroid.core.inicializacion
 
 import android.content.SharedPreferences
 import android.util.Log
 import javax.inject.Inject
 
 /**
- * Ejemplo de multibindings (@IntoSet): varias piezas independientes se
- * registran en un Set<Inicializador> y la Application las ejecuta todas
- * sin conocerlas una a una. Patrón típico para tareas de arranque.
+ * Código transversal (no pertenece a ninguna feature): vive en core/.
+ * Multibinding @IntoSet — ver guía 04, sección 7.
  */
 interface Inicializador {
     fun inicializar()

@@ -1,21 +1,16 @@
-package com.aprender.holaandroid.data
+package com.aprender.holaandroid.domain.saludo
 
 import java.util.Calendar
 import javax.inject.Inject
 
 /**
- * Abstracción con dos implementaciones. El módulo SaludoModule las expone
- * con @Binds + cualificador (@SaludoFormal / @SaludoInformal).
+ * Lógica de negocio pura: no conoce Android ni la UI.
+ * Dos implementaciones expuestas con @Binds + cualificador (di/SaludoModule).
  */
 interface GeneradorSaludo {
     fun saludar(nombre: String): String
 }
 
-/**
- * Inyección por constructor: Hilt sabe crear esta clase solo con @Inject.
- * El Calendar lo entrega un @Provides SIN scope, así que cada inyección
- * recibe una instancia nueva (con la hora del momento de creación).
- */
 class GeneradorSaludoFormal @Inject constructor(
     private val calendario: Calendar
 ) : GeneradorSaludo {

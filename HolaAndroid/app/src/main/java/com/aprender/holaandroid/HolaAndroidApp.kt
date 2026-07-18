@@ -1,7 +1,7 @@
 package com.aprender.holaandroid
 
 import android.app.Application
-import com.aprender.holaandroid.data.Inicializador
+import com.aprender.holaandroid.core.inicializacion.Inicializador
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

@@ -1,8 +1,8 @@
 package com.aprender.holaandroid.di
 
-import com.aprender.holaandroid.data.GeneradorSaludo
-import com.aprender.holaandroid.data.GeneradorSaludoFormal
-import com.aprender.holaandroid.data.GeneradorSaludoInformal
+import com.aprender.holaandroid.domain.saludo.GeneradorSaludo
+import com.aprender.holaandroid.domain.saludo.GeneradorSaludoFormal
+import com.aprender.holaandroid.domain.saludo.GeneradorSaludoInformal
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

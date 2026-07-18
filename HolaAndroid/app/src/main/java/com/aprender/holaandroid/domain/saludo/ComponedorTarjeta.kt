@@ -1,14 +1,13 @@
-package com.aprender.holaandroid.data
+package com.aprender.holaandroid.domain.saludo
 
+import com.aprender.holaandroid.data.repository.ContadorRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
 /**
- * Inyección asistida: parte de los parámetros los pone Hilt
- * (contadorRepository) y parte el llamante en tiempo de ejecución (nombre).
- * No se inyecta esta clase directamente: se inyecta su @AssistedFactory.
- * Las clases @AssistedInject no admiten scope.
+ * Inyección asistida (ver guía 04): contadorRepository lo pone Hilt,
+ * nombre lo pone el llamante en runtime.
  */
 class ComponedorTarjeta @AssistedInject constructor(
     private val contadorRepository: ContadorRepository,

@@ -366,18 +366,22 @@ class Ejemplo @Inject constructor(
 
 ## 12. Mapa de archivos: qué concepto vive en cada sitio
 
+> Nota: en la lección 05 el proyecto se reorganizó en capas (data/domain/ui);
+> las rutas de esta tabla son las actuales.
+
 | Archivo | Concepto que demuestra |
 |---|---|
-| `data/ContadorRepository.kt` | `@Inject constructor` + `@Singleton` + estado compartido |
-| `data/GeneradorSaludo.kt` | interfaz con 2 implementaciones inyectables |
-| `data/ComponedorTarjeta.kt` | `@AssistedInject` / `@Assisted` / `@AssistedFactory` |
-| `data/Inicializadores.kt` | contribuciones a un multibinding |
+| `data/repository/DefaultContadorRepository.kt` | `@Inject constructor` + `@Singleton` + estado compartido |
+| `domain/saludo/GeneradorSaludo.kt` | interfaz con 2 implementaciones inyectables |
+| `domain/saludo/ComponedorTarjeta.kt` | `@AssistedInject` / `@Assisted` / `@AssistedFactory` |
+| `core/inicializacion/Inicializadores.kt` | contribuciones a un multibinding |
 | `di/Cualificadores.kt` | `@Qualifier` propios |
 | `di/AppModule.kt` | `@Provides`, `@ApplicationContext`, con/sin scope |
 | `di/SaludoModule.kt` | `@Binds` + cualificadores + módulo en `ViewModelComponent` |
+| `di/RepositorioModule.kt` | `@Binds` contrato de repositorio → implementación |
 | `di/InicializadoresModule.kt` | `@IntoSet` |
 | `di/DiagnosticoEntryPoint.kt` | `@EntryPoint` + `EntryPointAccessors` |
-| `ui/SaludoViewModel.kt` | `@HiltViewModel`, `SavedStateHandle`, factoría asistida |
+| `ui/saludo/SaludoViewModel.kt` | `@HiltViewModel`, `SavedStateHandle`, factoría asistida |
 | `HolaAndroidApp.kt` | field injection + `@JvmSuppressWildcards` |
 | `MainActivity.kt` | `by viewModels()` con Hilt, uso del EntryPoint |
 
