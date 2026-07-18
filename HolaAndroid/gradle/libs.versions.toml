@@ -23,6 +23,9 @@ kotlinxSerializationJson = "1.8.1"
 room = "2.8.4"
 # Timber: misma versión que usan los architecture-samples de Google
 timber = "5.0.1"
+# coroutines-test: MISMA serie que las corrutinas que resuelve el proyecto
+# (ver ./gradlew app:dependencies | grep kotlinx-coroutines-core → 1.8.1)
+kotlinxCoroutinesTest = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +53,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
