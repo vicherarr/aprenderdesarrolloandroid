@@ -33,6 +33,7 @@ Studio + Android SDK cmdline-tools).
   - `23-animaciones-ui-compose.md` — Animaciones UI (`animate*AsState`, `AnimatedVisibility`, `Crossfade`).
   - `24-canvas-y-dibujo-personalizado.md` — Dibujo Personalizado y Canvas (`Canvas`, `Path`, `Brush`).
   - `25-gestos-y-diseno-responsive.md` — Gestos Táctiles y Diseño Adaptativo (`pointerInput`, `WindowSizeClass`).
+  - `26-integracion-profunda-material3.md` — Integración Profunda de Material 3 y Tokens de Diseño.
 
 ## Requisitos del equipo
 
