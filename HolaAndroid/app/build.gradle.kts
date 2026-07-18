@@ -35,6 +35,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Firma de debug SOLO para poder instalar y probar el build
+            // release en local (guía 09); una app publicada usa su firma real
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -46,6 +49,9 @@ android {
     }
     buildFeatures {
         compose = true
+        // Genera la clase BuildConfig (apagada por defecto en AGP 8):
+        // la necesitamos para BuildConfig.DEBUG al plantar los árboles de Timber
+        buildConfig = true
     }
 }
 
@@ -68,6 +74,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.timber)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

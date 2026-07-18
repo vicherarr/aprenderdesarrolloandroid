@@ -9,6 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 /**
  * El repositorio coordina las DOS fuentes de datos: pide a la red (Retrofit)
@@ -24,6 +25,9 @@ class DefaultFraseRepository @Inject constructor(
     override suspend fun obtenerFraseAleatoria(): Frase {
         val dto = api.obtenerFraseAleatoria()
         fraseDao.insertar(dto.aEntidad())
+        // Se loguea el id, no el texto: en logs de datos, identificadores
+        // sí, contenidos no (regla general contra fugas de datos)
+        Timber.d("Frase %d guardada en la base de datos", dto.id)
         return dto.aDominio()
     }
 

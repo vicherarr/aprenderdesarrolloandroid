@@ -4,6 +4,7 @@ import com.aprender.holaandroid.data.repository.FraseRepository
 import com.aprender.holaandroid.domain.frase.Frase
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import timber.log.Timber
 
 /**
  * Convierte el posible fallo de red en un Result explícito para que el
@@ -20,6 +21,9 @@ class ObtenerFraseUseCase @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            // WARN, no ERROR: es un fallo esperado (red) que la app maneja.
+            // La excepción va como primer argumento: Timber imprime su stacktrace
+            Timber.w(e, "Fallo al obtener la frase de la red")
             Result.failure(e)
         }
 }

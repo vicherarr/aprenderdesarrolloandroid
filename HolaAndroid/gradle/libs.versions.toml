@@ -21,6 +21,8 @@ kotlinxSerializationJson = "1.8.1"
 # Room: última estable en el Maven de Google (androidx NO está en Maven Central)
 # Ver https://dl.google.com/android/maven2/androidx/room/group-index.xml
 room = "2.8.4"
+# Timber: misma versión que usan los architecture-samples de Google
+timber = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +49,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Desde Room 2.7 las APIs de corrutinas/Flow viven en room-runtime (room-ktx ya no hace falta)
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

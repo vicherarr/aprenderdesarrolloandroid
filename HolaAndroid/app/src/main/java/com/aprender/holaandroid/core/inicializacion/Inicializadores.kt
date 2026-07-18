@@ -1,8 +1,8 @@
 package com.aprender.holaandroid.core.inicializacion
 
 import android.content.SharedPreferences
-import android.util.Log
 import javax.inject.Inject
+import timber.log.Timber
 
 /**
  * Código transversal (no pertenece a ninguna feature): vive en core/.
@@ -14,10 +14,9 @@ interface Inicializador {
 
 class RegistroInicializador @Inject constructor() : Inicializador {
     override fun inicializar() {
-        Log.d(TAG, "RegistroInicializador ejecutado")
+        // Sin TAG: el DebugTree de Timber usa el nombre de la clase
+        Timber.d("RegistroInicializador ejecutado")
     }
-
-    private companion object { const val TAG = "HolaAndroid" }
 }
 
 class PrimerArranqueInicializador @Inject constructor(
@@ -27,11 +26,10 @@ class PrimerArranqueInicializador @Inject constructor(
         if (!prefs.contains(CLAVE)) {
             prefs.edit().putLong(CLAVE, System.currentTimeMillis()).apply()
         }
-        Log.d(TAG, "Primer arranque registrado en: ${prefs.getLong(CLAVE, 0L)}")
+        Timber.d("Primer arranque registrado en: %d", prefs.getLong(CLAVE, 0L))
     }
 
     private companion object {
-        const val TAG = "HolaAndroid"
         const val CLAVE = "primer_arranque_ms"
     }
 }

@@ -1,7 +1,6 @@
 package com.aprender.holaandroid
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +14,7 @@ import com.aprender.holaandroid.ui.saludo.SaludoScreen
 import com.aprender.holaandroid.ui.saludo.SaludoViewModel
 import com.aprender.holaandroid.ui.theme.HolaAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 /**
  * La Activity queda mínima: es solo el contenedor. La pantalla vive en
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         // Demostración de @EntryPoint (guía 04): acceso al grafo desde un object.
-        Log.d("HolaAndroid", "Saludos enviados hasta ahora: ${Diagnostico.saludosEnviados(this)}")
+        Timber.d("Saludos enviados hasta ahora: %d", Diagnostico.saludosEnviados(this))
 
         setContent {
             HolaAndroidTheme {
