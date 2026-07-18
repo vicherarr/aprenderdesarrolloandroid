@@ -1,157 +1,209 @@
-# Guía 09 — Navegación en Jetpack Compose (`Navigation Compose` & Type-Safe Navigation)
+# Guía 09 — Navegación en Jetpack Compose Paso a Paso (`Navigation Compose Type-Safe`)
 
-Objetivo: dominar el flujo de navegación entre pantallas en aplicaciones Compose utilizando la API oficial de **Type-Safe Navigation** (Navigation 2.8+ con `kotlinx.serialization`), inyección de argumentos directamente en ViewModels con `SavedStateHandle`, paso de tipos complejos con `NavType` personalizado, modularización por subgrafos y devolución de resultados entre pantallas.
+Objetivo: guía directa y secuencial para poner en marcha la navegación tipo-segura en Jetpack Compose (Navigation 2.8+ con `kotlinx.serialization`) desde cero, paso a paso con código listo para copiar y usar.
 
 ---
 
-## 1. La API de Type-Safe Navigation
+## Paso 1: Añadir dependencias al proyecto
 
-A diferencia del sistema de navegación antiguo basado en rutas String frágiles (ej. `"perfil/{usuarioId}"`), la arquitectura moderna de Google utiliza objetos y clases serializables en Kotlin (`@Serializable`):
+En el archivo `HolaAndroid/app/build.gradle.kts`, añade el plugin de serialización y la dependencia de navegación:
+
+```kotlin
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    // 1. Añadir plugin de serialization
+    alias(libs.plugins.kotlin.serialization)
+}
+
+dependencies {
+    // 2. Añadir dependencias de Navigation Compose y kotlinx-serialization
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+}
+```
+
+---
+
+## Paso 2: Definir las rutas / pantallas como clases serializables
+
+Crea un archivo llamado `NavegacionDestinos.kt` donde defines cada pantalla como un `@Serializable` (objeto si no lleva parámetros, data class si lleva parámetros):
 
 ```kotlin
 import kotlinx.serialization.Serializable
 
-// Definición fuertemente tipada de destinos
+// Pantalla sin parámetros
 @Serializable
 object RutaInicio
 
+// Pantalla que requiere parámetros (id de usuario y si es premium)
 @Serializable
-data class RutaPerfil(val usuarioId: String, val esPremium: Boolean)
-
-@Serializable
-data class RutaEditarProducto(val producto: ProductoParcelable)
+data class RutaPerfil(
+    val usuarioId: String,
+    val esPremium: Boolean
+)
 ```
 
 ---
 
-## 2. Inyección Directa en ViewModel con `SavedStateHandle` (Práctica Recomendada #1)
+## Paso 3: Configurar el `NavHost` y declarar las pantallas
 
-La recomendación oficial de arquitectura de Android es **NO pasar los argumentos de navegación manualmente en la función Composable**, sino inyectarlos directamente dentro del `ViewModel` desde `SavedStateHandle` usando `toRoute<T>()`:
+Crea la estructura del grafo de navegación asociando cada ruta `@Serializable` con su Composable:
+
+```kotlin
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+
+@Composable
+fun MiAplicacionNavegacion() {
+    // 1. Crear el controlador de navegación
+    val navController = rememberNavController()
+
+    // 2. Definir el NavHost indicando la pantalla inicial (startDestination)
+    NavHost(
+        navController = navController,
+        startDestination = RutaInicio
+    ) {
+        // Pantalla 1: Inicio
+        composable<RutaInicio> {
+            PantallaInicio(
+                onIrAPerfil = { idUsuario ->
+                    // Navegar hacia RutaPerfil pasando los argumentos requeridos
+                    navController.navigate(RutaPerfil(usuarioId = idUsuario, esPremium = true))
+                }
+            )
+        }
+
+        // Pantalla 2: Perfil (recibe argumentos)
+        composable<RutaPerfil> { backStackEntry ->
+            // Extraer los argumentos del backStackEntry
+            val args = backStackEntry.toRoute<RutaPerfil>()
+
+            PantallaPerfil(
+                usuarioId = args.usuarioId,
+                esPremium = args.esPremium,
+                onVolverAtras = {
+                    navController.popBackStack() // Volver a la pantalla anterior
+                }
+            )
+        }
+    }
+}
+```
+
+---
+
+## Paso 4: Implementar los Composables de las pantallas
+
+Crea las pantallas que reciben los eventos de navegación mediante lambdas:
+
+```kotlin
+// Pantalla de Inicio
+@Composable
+fun PantallaInicio(onIrAPerfil: (String) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Pantalla Principal", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { onIrAPerfil("usr_12345") }) {
+            Text("Ver Perfil de Usuario")
+        }
+    }
+}
+
+// Pantalla de Perfil
+@Composable
+fun PantallaPerfil(
+    usuarioId: String,
+    esPremium: Boolean,
+    onVolverAtras: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Perfil del Usuario", style = MaterialTheme.typography.headlineMedium)
+        Text("ID: $usuarioId")
+        Text("Tipo: ${if (esPremium) "Cuenta Premium 🌟" else "Cuenta Gratuita"}")
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedButton(onClick = onVolverAtras) {
+            Text("Volver Atras")
+        }
+    }
+}
+```
+
+---
+
+## Paso 5 (Recomendado): Leer argumentos dentro del ViewModel
+
+Si utilizas ViewModel (con o sin Hilt), no necesitas leer los argumentos en la función Composable. Puedes leerlos directamente en el `ViewModel` mediante `SavedStateHandle`:
 
 ```kotlin
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val obtenerUsuarioUseCase: ObtenerUsuarioUseCase
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // Extracción automática y type-safe de los argumentos desde la ruta
+    // Extrae automáticamente los argumentos con tipado estricto
     private val args = savedStateHandle.toRoute<RutaPerfil>()
 
-    val usuarioId: String = args.usuarioId
-    val esPremium: Boolean = args.esPremium
-
-    init {
-        Log.d("PerfilVM", "Cargando datos para usuarioId=${args.usuarioId}, esPremium=${args.esPremium}")
-    }
+    val usuarioId = args.usuarioId
+    val esPremium = args.esPremium
 }
 ```
 
-De este modo, el Composable queda 100% limpio y desacoplado:
+Uso desacoplado en el `composable`:
 
 ```kotlin
 composable<RutaPerfil> {
-    // hiltViewModel() obtiene automáticamente los argumentos de la ruta mediante SavedStateHandle
     val viewModel: PerfilViewModel = hiltViewModel()
-    PantallaPerfil(viewModel = viewModel, onVolver = { navController.popBackStack() })
+    PantallaPerfil(
+        usuarioId = viewModel.usuarioId,
+        esPremium = viewModel.esPremium,
+        onVolverAtras = { navController.popBackStack() }
+    )
 }
 ```
 
 ---
 
-## 3. Tipos Personalizados (`NavType`) para Objetos Complejos
+## Paso 6 (Avanzado): Devolver un resultado a la pantalla anterior
 
-Para pasar clases de datos compuestas o `Parcelable`, se crea un `NavType` personalizado serializado en JSON:
-
-```kotlin
-@Serializable
-@Parcelize
-data class ProductoParcelable(val id: Int, val nombre: String, val precio: Double) : Parcelable
-
-// Custom NavType para Kotlin Serialization + Navigation
-val ProductoNavType = object : NavType<ProductoParcelable>(isNullableAllowed = false) {
-    override fun get(bundle: Bundle, key: String): ProductoParcelable? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            bundle.getParcelable(key, ProductoParcelable::class.java)
-        } else {
-            @Suppress("DEPRECATION") bundle.getParcelable(key)
-        }
-    }
-
-    override fun parseValue(value: String): ProductoParcelable {
-        return Json.decodeFromString(Uri.decode(value))
-    }
-
-    override fun put(bundle: Bundle, key: String, value: ProductoParcelable) {
-        bundle.putParcelable(key, value)
-    }
-
-    override fun serializeAsValue(value: ProductoParcelable): String {
-        return Uri.encode(Json.encodeToString(value))
-    }
-}
-```
-
-Registro en el `composable`:
+Para devolver datos desde la pantalla secundaria a la principal (ej. seleccionar una opción):
 
 ```kotlin
-composable<RutaEditarProducto>(
-    typeMap = mapOf(typeOf<ProductoParcelable>() to ProductoNavType)
-) {
-    val viewModel: EditarProductoViewModel = hiltViewModel()
-    PantallaEditarProducto(viewModel = viewModel)
-}
-```
-
----
-
-## 4. Devolución de Resultados entre Pantallas (*Pop with Result*)
-
-Para devolver un resultado desde una pantalla de selección o edición hacia la pantalla anterior:
-
-```kotlin
-// Pantalla A (Origen): Escuchar el resultado devuelto en el SavedStateHandle
+// 1. En la pantalla origen (Inicio): Escuchar el resultado
 composable<RutaInicio> { backStackEntry ->
-    val resultadoSeleccion = backStackEntry.savedStateHandle
-        .getStateFlow<String?>("categoria_seleccionada", null)
+    val resultado = backStackEntry.savedStateHandle
+        .getStateFlow<String?>("dato_devuelto", null)
         .collectAsState()
 
-    PantallaInicio(
-        categoria = resultadoSeleccion.value,
-        onAbrirSeleccion = { navController.navigate(RutaSeleccionarCategoria) }
-    )
+    Text("Resultado recibido: ${resultado.value}")
 }
 
-// Pantalla B (Destino): Establecer resultado y volver atrás
-composable<RutaSeleccionarCategoria> {
-    PantallaSeleccionarCategoria(
-        onCategoriaSelected = { categoria ->
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("categoria_seleccionada", categoria)
-            navController.popBackStack()
-        }
-    )
-}
+// 2. En la pantalla destino (Perfil): Establecer el resultado y cerrar
+navController.previousBackStackEntry
+    ?.savedStateHandle
+    ?.set("dato_devuelto", "Opción A seleccionada")
+
+navController.popBackStack()
 ```
 
 ---
 
-## 5. Subgrafos y Modularización (`NavGraphBuilder`)
+## Resumen de la secuencia de trabajo
 
-Para evitar un archivo `NavHost` gigantesco, la práctica moderna es encapsular cada flujo en funciones de extensión de `NavGraphBuilder`:
-
-```kotlin
-fun NavGraphBuilder.seccionPerfilGraph(navController: NavHostController) {
-    navigation<RutaPerfilGraphGroup>(startDestination = RutaPerfilMain) {
-        composable<RutaPerfilMain> {
-            PantallaPerfil(onEditar = { navController.navigate(RutaEditarPerfil) })
-        }
-        composable<RutaEditarPerfil> {
-            PantallaEditarPerfil(onGuardar = { navController.popBackStack() })
-        }
-    }
-}
+```
+[Paso 1: build.gradle.kts] ──> [Paso 2: Rutas @Serializable] ──> [Paso 3: NavHost] ──> [Paso 4: Composables]
 ```
 
 ---
@@ -159,5 +211,4 @@ fun NavGraphBuilder.seccionPerfilGraph(navController: NavHostController) {
 ## Fuentes consultadas (18-07-2026)
 
 - Type-Safe Navigation en Compose (oficial): <https://developer.android.com/guide/navigation/design/type-safety>
-- Argumentos en ViewModel con SavedStateHandle: <https://developer.android.com/guide/navigation/design/type-safety#savedstatehandle>
-- Devolver resultados en Navigation Compose: <https://developer.android.com/guide/navigation/navigation-programmatic#return_a_result>
+- Navigation en Jetpack Compose: <https://developer.android.com/guide/navigation/navigation-compose>
