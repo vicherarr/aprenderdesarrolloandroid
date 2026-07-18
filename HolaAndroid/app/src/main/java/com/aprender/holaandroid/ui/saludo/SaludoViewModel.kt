@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.aprender.holaandroid.domain.saludo.ComponedorTarjetaFactory
 import com.aprender.holaandroid.domain.usecase.EnviarSaludoUseCase
 import com.aprender.holaandroid.domain.usecase.ObservarContadorUseCase
+import com.aprender.holaandroid.domain.usecase.ObservarFrasesGuardadasUseCase
 import com.aprender.holaandroid.domain.usecase.ObtenerFraseUseCase
 import com.aprender.holaandroid.domain.usecase.ObtenerSaludoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 class SaludoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     observarContador: ObservarContadorUseCase,
+    observarFrasesGuardadas: ObservarFrasesGuardadasUseCase,
     private val obtenerSaludo: ObtenerSaludoUseCase,
     private val enviarSaludoUseCase: EnviarSaludoUseCase,
     private val obtenerFrase: ObtenerFraseUseCase,
@@ -34,13 +36,19 @@ class SaludoViewModel @Inject constructor(
     private val fraseState = MutableStateFlow<FraseUiState>(FraseUiState.Inicial)
 
     val uiState: StateFlow<SaludoUiState> =
-        combine(esFormal, observarContador(), fraseState) { formal, contador, frase ->
+        combine(
+            esFormal,
+            observarContador(),
+            fraseState,
+            observarFrasesGuardadas()   // Flow de Room: emite con cada cambio de la tabla
+        ) { formal, contador, frase, guardadas ->
             SaludoUiState(
                 saludo = obtenerSaludo(nombre, formal),
                 contador = contador,
                 esFormal = formal,
                 tarjeta = tarjetaFactory.crear(nombre).componer(),
-                frase = frase
+                frase = frase,
+                frasesGuardadas = guardadas
             )
         }.stateIn(
             scope = viewModelScope,

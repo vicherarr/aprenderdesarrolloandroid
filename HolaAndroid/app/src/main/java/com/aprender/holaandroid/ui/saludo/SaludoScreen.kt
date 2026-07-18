@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aprender.holaandroid.domain.frase.Frase
 import com.aprender.holaandroid.ui.theme.HolaAndroidTheme
 
 /**
@@ -67,6 +70,30 @@ private fun SaludoContent(
             Text("Frase del día")
         }
         FraseSeccion(uiState.frase)
+        FrasesGuardadasSeccion(uiState.frasesGuardadas, modifier = Modifier.weight(1f))
+    }
+}
+
+/**
+ * Lo persistido en Room: visible aunque no haya conexión. LazyColumn solo
+ * compone las filas visibles (la lista crece con cada frase pedida).
+ */
+@Composable
+private fun FrasesGuardadasSeccion(frases: List<Frase>, modifier: Modifier = Modifier) {
+    if (frases.isEmpty()) return
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = "Guardadas en el dispositivo (${frases.size})",
+            style = MaterialTheme.typography.titleSmall
+        )
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(frases) { frase ->
+                Text(
+                    text = "“${frase.texto}” — ${frase.autor}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
     }
 }
 
@@ -110,6 +137,10 @@ private fun SaludoContentPreview() {
                 frase = FraseUiState.Exito(
                     texto = "El que tiene un porqué puede soportar casi cualquier cómo.",
                     autor = "Nietzsche"
+                ),
+                frasesGuardadas = listOf(
+                    Frase("La memoria es el centinela del cerebro.", "Shakespeare"),
+                    Frase("Lo que se guarda, se encuentra.", "Anónimo")
                 )
             ),
             alEnviar = {},

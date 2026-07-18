@@ -5,6 +5,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
+}
+
+room {
+    // El plugin de Room exporta aquí el esquema de cada versión de la BD:
+    // se versiona en git y es la base para escribir migraciones en el futuro
+    schemaDirectory("$projectDir/schemas")
 }
 
 android {
@@ -59,6 +66,8 @@ dependencies {
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,5 +1,7 @@
 package com.aprender.holaandroid.ui.saludo
 
+import com.aprender.holaandroid.domain.frase.Frase
+
 /**
  * Estado de UI inmutable: TODO lo que la pantalla necesita pintar, en un
  * único objeto. La UI no calcula nada; solo representa este estado.
@@ -9,7 +11,8 @@ data class SaludoUiState(
     val contador: Int = 0,
     val esFormal: Boolean = true,
     val tarjeta: String = "",
-    val frase: FraseUiState = FraseUiState.Inicial
+    val frase: FraseUiState = FraseUiState.Inicial,
+    val frasesGuardadas: List<Frase> = emptyList()
 )
 
 /**
