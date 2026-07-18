@@ -191,20 +191,128 @@ Activity/recursos, con ámbito de pantalla, y evitando `AndroidViewModel`.
 - `SaludoContent` (*stateless*): recibe `UiState` + callbacks. Al no depender
   de nada, la `@Preview` y los tests son triviales.
 
-## 6. El UDF en acción: qué pasa al pulsar "Enviar saludo"
+## 6. Cómo se comunican las capas entre sí (en ambos sentidos)
+
+Aquí está la clave de toda la arquitectura, y lo que más confunde al
+principio: **las dependencias apuntan en un solo sentido (hacia abajo), pero
+los datos viajan en los dos**. ¿Cómo puede subir información si la capa de
+datos no conoce a nadie de arriba? Con dos mecanismos distintos, uno por
+sentido.
+
+### 6.1 Hacia abajo: llamadas a métodos de dependencias inyectadas
+
+El sentido descendente es el fácil: cada capa recibe por constructor (Hilt) una
+referencia a la capa inferior y **la llama como a cualquier objeto**. La cadena
+completa en nuestro proyecto:
+
+```kotlin
+// UI: el ViewModel tiene el caso de uso (inyectado) y lo llama
+fun enviarSaludo() = enviarSaludoUseCase()
+
+// DOMINIO: el caso de uso tiene el repositorio (inyectado) y lo llama
+class EnviarSaludoUseCase @Inject constructor(
+    private val contadorRepository: ContadorRepository   // ¡la interfaz, no la impl!
+) {
+    operator fun invoke() = contadorRepository.incrementar()
+}
+
+// DATOS: el repositorio tiene la fuente de datos (inyectada) y la llama
+override fun incrementar() {
+    val nuevo = _contador.value + 1
+    localDataSource.guardar(nuevo)
+    ...
+}
+```
+
+Una pulsación de botón recorre UI → dominio → datos como llamadas normales
+encadenadas. Fíjate en el detalle: cada capa conoce a la de abajo **por su
+contrato** (la interfaz `ContadorRepository`), nunca por su clase concreta.
+
+### 6.2 Hacia arriba: los datos suben, las referencias no
+
+La capa de datos **no tiene ni un solo import de dominio o UI** (compruébalo:
+`grep -r "import com.aprender.holaandroid.ui" app/src/main/java/com/aprender/holaandroid/data/`
+no devuelve nada). Entonces, ¿cómo sube la información? Por dos vías:
+
+**Vía 1 — El valor de retorno** (petición puntual): la llamada baja, el
+resultado sube por el `return`. Es el caso de `ObtenerSaludoUseCase`:
+
+```kotlin
+// baja la petición (nombre, esFormal)... y sube el String como retorno
+val texto: String = obtenerSaludo(nombre, formal)
+```
+
+Si la operación fuera lenta (red, disco), el mecanismo es el mismo pero con
+`suspend fun`: la corrutina espera sin bloquear y el valor sube igual.
+
+**Vía 2 — El flujo observable** (dato que cambia a lo largo del tiempo): el
+repositorio expone un `StateFlow` que **él mismo posee y alimenta**, y las
+capas superiores se suscriben. Es el caso del contador:
+
+```kotlin
+// DATOS: el repositorio emite hacia un canal que es SUYO
+private val _contador = MutableStateFlow(localDataSource.leer())
+override val contador: StateFlow<Int> = _contador.asStateFlow()
+
+// UI: el ViewModel se suscribe (a través del caso de uso) y reacciona
+combine(esFormal, observarContador()) { formal, contador -> ... }
+```
+
+La suscripción es una llamada **hacia abajo** ("dame tu flujo") que se hace una
+vez; a partir de ahí, cada emisión viaja **hacia arriba** por el canal ya
+abierto. La analogía: te suscribes a una revista una vez (petición hacia
+abajo), y los números te llegan solos a casa cada mes (datos hacia arriba). La
+editorial no sabe quién eres ni cuántos suscriptores tiene que avisar: solo
+publica.
+
+Eso es exactamente lo que hace `MutableStateFlow`: el repositorio "publica" el
+nuevo valor en su propio flujo y **no sabe ni le importa** si lo escuchan un
+ViewModel, tres, o nadie. Así los datos suben sin que exista ninguna
+referencia hacia arriba.
+
+### 6.3 Resumen: qué mecanismo usar para cada necesidad
+
+| Necesidad | Mecanismo | Sentido | Ejemplo en el proyecto |
+|---|---|---|---|
+| Pedir un dato puntual | llamada + valor de retorno (`suspend` si es lenta) | baja la petición, sube el valor | `obtenerSaludo(nombre, formal): String` |
+| Ordenar una acción | llamada que muta el SSOT, sin retorno | solo baja; la "respuesta" llegará por el flujo | `enviarSaludo()` |
+| Observar un dato que cambia | `Flow`/`StateFlow` expuesto por el dueño del dato | la suscripción baja, las emisiones suben | `contador: StateFlow<Int>` |
+| Comunicar un error | excepción o `Result` subiendo por el retorno | sube junto al valor | (lo veremos con red/BD) |
+
+### 6.4 Por qué está prohibida la referencia hacia arriba
+
+Antes de los flujos, "subir datos" se hacía con **callbacks/listeners**: la
+capa de datos guardaba una referencia a la pantalla para avisarla. Eso causa
+los problemas clásicos de Android:
+
+- **Fugas de memoria**: el repositorio (singleton, vive siempre) reteniendo
+  una Activity destruida.
+- **Crashes**: avisar a una pantalla que ya no existe tras una rotación.
+- **Acoplamiento**: la capa de datos deja de ser reutilizable y testeable
+  porque conoce a sus consumidores.
+
+El patrón observable elimina el problema de raíz: el que vive mucho (repo) no
+guarda referencias al que vive poco (pantalla); es el que vive poco quien se
+suscribe y se des-suscribe según su ciclo de vida — justo lo que
+`collectAsStateWithLifecycle()` automatiza en Compose.
+
+### 6.5 El circuito completo: qué pasa al pulsar "Enviar saludo"
+
+Juntando los dos sentidos, el UDF en acción:
 
 ```
-[Botón]  onClick ──► viewModel.enviarSaludo()          (evento, hacia arriba)
+[Botón]  onClick ──► viewModel.enviarSaludo()            (evento, baja: llamada)
                         └─► EnviarSaludoUseCase()
                               └─► ContadorRepository.incrementar()
                                     ├─► LocalDataSource.guardar(n)   (persiste)
-                                    └─► _contador.value = n          (SSOT emite)
-[Pantalla] ◄── recompone ◄── uiState nuevo ◄── combine reacciona     (estado, hacia abajo)
+                                    └─► _contador.value = n          (el SSOT publica)
+[Pantalla] ◄── recompone ◄── uiState nuevo ◄── combine reacciona     (estado, sube: emisión)
 ```
 
 Nadie "pinta el resultado del click": el click **modifica el dato** en su
-única fuente de verdad, y el nuevo estado fluye solo hasta la pantalla. Por
-eso el contador sobrevive a rotaciones, a matar la app, y siempre es
+única fuente de verdad, y el nuevo estado fluye solo hasta la pantalla. El
+circuito de bajada (llamadas) y el de subida (emisiones) son independientes;
+por eso el contador sobrevive a rotaciones, a matar la app, y siempre es
 consistente lo mires desde donde lo mires.
 
 ## 7. Qué se movió respecto a la lección 04
