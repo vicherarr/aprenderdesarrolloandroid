@@ -23,6 +23,16 @@ Studio + Android SDK cmdline-tools).
   - `13-tests-instrumentados-room.md` — Tests instrumentados con Room.
   - `14-tests-ui-compose.md` — Tests de UI en Jetpack Compose.
   - `15-ci-github-actions.md` — Integración Continua con GitHub Actions.
+  - `16-layouts-y-modificadores.md` — Fundamentos de Layouts y Modificadores (`Column`, `Row`, `Box`).
+  - `17-botones-y-entradas.md` — Botones, Selección y Controles de Entrada (`Button`, `TextField`, `Switch`).
+  - `18-tarjetas-listas-y-grids.md` — Tarjetas, Listas y Rejillas Eficientes (`Card`, `LazyColumn`, `LazyVerticalGrid`).
+  - `19-scaffold-y-material3-structure.md` — Estructura de Pantalla M3 (`Scaffold`, `TopAppBar`, `NavigationBar`, `Drawer`).
+  - `20-feedback-dialogos-y-bottomsheets.md` — Feedback de Usuario, Diálogos y Menús (`Snackbar`, `AlertDialog`, `ModalBottomSheet`).
+  - `21-tabs-pagers-badges-y-chips.md` — Pestañas, Pagers, Badges e Indicadores (`TabRow`, `HorizontalPager`, `Badge`, `Chip`).
+  - `22-tema-material3-y-dark-mode.md` — Sistema de Diseño Material 3 (`MaterialTheme`, Dark Mode, Dynamic Color).
+  - `23-animaciones-ui-compose.md` — Animaciones UI (`animate*AsState`, `AnimatedVisibility`, `Crossfade`).
+  - `24-canvas-y-dibujo-personalizado.md` — Dibujo Personalizado y Canvas (`Canvas`, `Path`, `Brush`).
+  - `25-gestos-y-diseno-responsive.md` — Gestos Táctiles y Diseño Adaptativo (`pointerInput`, `WindowSizeClass`).
 
 ## Requisitos del equipo
 
