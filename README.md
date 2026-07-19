@@ -1,6 +1,6 @@
 # Aprender Desarrollo Android
 
-Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 50 guías paso a paso divididas en 8 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
+Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 51 guías paso a paso divididas en 9 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
 
 ---
 
@@ -71,6 +71,9 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 - [48-compras-integradas-google-play-billing.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/48-compras-integradas-google-play-billing.md) — Monetización y Compras Integradas (`Google Play Billing Library`).
 - [49-rendimiento-profiling-y-baseline-profiles.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/49-rendimiento-profiling-y-baseline-profiles.md) — Rendimiento, Profiling y Baseline Profiles (`LeakCanary` & `Macrobenchmark`).
 - [50-publicacion-google-play-aab-firmado.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/50-publicacion-google-play-aab-firmado.md) — Publicación y Distribución en Google Play Store (`.aab` y Play Console).
+
+### 🌊 Módulo IX: Programación Reactiva
+- [51-flows-programacion-reactiva.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/51-flows-programacion-reactiva.md) — Flows de Kotlin (`Flow`, `StateFlow`, `SharedFlow`, operadores y patrón Room→ViewModel→Compose).
 
 ### 📎 Anexos
 - [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.
