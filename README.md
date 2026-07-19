@@ -81,6 +81,7 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 - [anexo-02-kotlin-avanzado.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-02-kotlin-avanzado.md) — Kotlin Avanzado (lambdas, extensiones, `inline`/`reified`, genéricos, delegación, operadores).
 - [anexo-03-del-concepto-al-diseno.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-03-del-concepto-al-diseno.md) — Del Concepto al Diseño: proceso de la idea a la pantalla (investigación, MVP, flujos, wireframes, sistema de diseño M3).
 - [anexo-04-disenar-pantalla-recursos.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-04-disenar-pantalla-recursos.md) — Diseñar una Pantalla Bonita: consejos prácticos por pantalla y recursos de inspiración (color, tipografía, iconos, galerías).
+- [anexo-05-buenas-practicas-jetpack-compose.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-05-buenas-practicas-jetpack-compose.md) — Buenas Prácticas con Jetpack Compose (UDF, state hoisting, `remember`, efectos, recomposición y estabilidad).
 
 ---
 
