@@ -74,6 +74,7 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 
 ### 📎 Anexos
 - [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.
+- [anexo-02-kotlin-avanzado.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-02-kotlin-avanzado.md) — Kotlin Avanzado (lambdas, extensiones, `inline`/`reified`, genéricos, delegación, operadores).
 
 ---
 
