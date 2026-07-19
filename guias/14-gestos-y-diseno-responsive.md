@@ -73,6 +73,26 @@ Material 3 divide el espacio de pantalla en tres categorías estándar (*WindowS
 | `600 dp – 839 dp` | **Medium** | Teléfonos horizontales, plegables abiertos, tablets pequeñas. |
 | `>= 840 dp` | **Expanded** | Tablets en horizontal, pantallas de escritorio. |
 
+**¿De dónde sale el `WindowWidthSizeClass`?** No lo calculas a mano. Añade la
+dependencia y pídeselo a Compose una sola vez, en la `Activity`:
+
+```kotlin
+// app/build.gradle.kts
+implementation("androidx.compose.material3:material3-window-size-class")
+```
+
+```kotlin
+// Dentro de setContent { } en tu Activity
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+val windowSizeClass = calculateWindowSizeClass(this)
+
+// Y le pasas la categoría de ancho al composable adaptativo:
+LayoutAdaptativo(windowWidthSizeClass = windowSizeClass.widthSizeClass, /* ... */)
+```
+
+Los composables reciben el `WindowWidthSizeClass` como parámetro (más fáciles de
+previsualizar y testear); solo la `Activity` conoce cómo obtenerlo:
+
 ```kotlin
 @Composable
 fun LayoutAdaptativo(

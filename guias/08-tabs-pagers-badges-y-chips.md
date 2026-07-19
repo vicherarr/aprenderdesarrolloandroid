@@ -9,7 +9,10 @@ Objetivo: incorporar patrones avanzados de navegación y etiquetado visual media
 La combinación de `PrimaryTabRow` / `SecondaryTabRow` con `HorizontalPager` permite deslizar suavemente entre vistas (patrón común en apps de mensajería y redes sociales):
 
 ```kotlin
-@OptIn(ExperimentalFoundationApi::class)
+// PrimaryTabRow es API experimental de Material 3 → hace falta este opt-in.
+// (HorizontalPager y rememberPagerState ya son estables en foundation: no
+//  requieren ExperimentalFoundationApi con Compose BOM 2025.06.00.)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavegacionPorPestanas() {
     val titulos = listOf("Chats", "Estados", "Llamadas")
@@ -47,25 +50,30 @@ fun NavegacionPorPestanas() {
 
 ## 2. Insignias de Notificación (`BadgedBox` y `Badge`)
 
-`Badge` permite añadir un indicador visual (contador numérico o punto de atención) sobre iconos en barras de navegación o listas:
+`Badge` permite añadir un indicador visual (contador numérico o punto de atención) sobre iconos en barras de navegación o listas.
+
+`NavigationBarItem` es una función de extensión sobre `RowScope`, así que solo
+puede llamarse **dentro** de un `NavigationBar`; por eso el ejemplo lo incluye:
 
 ```kotlin
-NavigationBarItem(
-    selected = true,
-    onClick = { },
-    icon = {
-        BadgedBox(
-            badge = {
-                Badge {
-                    Text("5") // Contador de elementos no leídos
+NavigationBar {
+    NavigationBarItem(
+        selected = true,
+        onClick = { },
+        icon = {
+            BadgedBox(
+                badge = {
+                    Badge {
+                        Text("5") // Contador de elementos no leídos
+                    }
                 }
+            ) {
+                Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
             }
-        ) {
-            Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
-        }
-    },
-    label = { Text("Alertas") }
-)
+        },
+        label = { Text("Alertas") }
+    )
+}
 ```
 
 ---

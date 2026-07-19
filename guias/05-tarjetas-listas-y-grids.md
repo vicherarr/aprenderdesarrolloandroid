@@ -76,6 +76,15 @@ fun ListaNoticias(noticias: List<Noticia>) {
 
 ---
 
+> ⚠️ **Trampa común con `padding`.** No existe una versión de `padding()` que
+> mezcle `horizontal` con un solo lado. Las combinaciones válidas son:
+> `padding(all)`, `padding(horizontal, vertical)` y
+> `padding(start, top, end, bottom)`. Si necesitas 16dp a los lados y 8dp solo
+> abajo, usa `padding(start = 16.dp, end = 16.dp, bottom = 8.dp)`;
+> `padding(horizontal = 16.dp, bottom = 8.dp)` **no compila.**
+
+---
+
 ## 3. Rejillas Adaptativas (`LazyVerticalGrid` y `LazyHorizontalGrid`)
 
 Las rejillas permiten distribuir contenido en columnas bidimensionales con ajuste automático al tamaño de pantalla:
@@ -124,7 +133,7 @@ fun PantallaCatálogo(
                 Text(
                     text = "Categorías",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 )
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),

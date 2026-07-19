@@ -83,6 +83,13 @@ fun TarjetaExpandible(titulo: String, descripcion: String) {
 
 ---
 
+> ⚠️ **Iconos.** `Icons.Default.ExpandLess` y `ExpandMore` pertenecen al set
+> *extendido* (`androidx.compose.material:material-icons-extended`, ver Guía 11).
+> Si prefieres no añadir esa dependencia, `Icons.Default.KeyboardArrowUp` /
+> `KeyboardArrowDown` están en el set básico y sirven igual.
+
+---
+
 ## 3. Transición de Contenidos (`Crossfade` y `AnimatedContent`)
 
 `Crossfade` disuelve gradualmente un contenido por otro al cambiar de estado:

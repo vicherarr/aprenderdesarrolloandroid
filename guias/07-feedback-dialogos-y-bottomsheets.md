@@ -151,7 +151,8 @@ fun SelectorOpciones(
             readOnly = true,
             label = { Text("Categoría") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
-            modifier = Modifier.menuAnchor()
+            // El tipo de ancla indica que es un campo de solo lectura que abre el menú
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
         )
 
         ExposedDropdownMenu(
@@ -171,6 +172,16 @@ fun SelectorOpciones(
     }
 }
 ```
+
+> ⚠️ **Dos detalles verificados con Compose BOM 2025.06.00:**
+> - `menuAnchor()` sin argumentos está **deprecado**. La firma actual pide el
+>   tipo de ancla: `menuAnchor(MenuAnchorType.PrimaryNotEditable)` para un campo
+>   de solo lectura (o `PrimaryEditable` si el usuario puede escribir para
+>   filtrar).
+> - El icono `Icons.Default.Download` del ejemplo del `ModalBottomSheet` pertenece
+>   al set *extendido*: requiere la dependencia
+>   `androidx.compose.material:material-icons-extended` (ver Guía 11). `Share` sí
+>   está en el set básico.
 
 ---
 

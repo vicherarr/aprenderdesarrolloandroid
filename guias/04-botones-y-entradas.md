@@ -75,6 +75,22 @@ fun CampoContrasena(
 }
 ```
 
+> ⚠️ **Iconos y dependencias.** `Icons.Default.Visibility` y `VisibilityOff` **no**
+> forman parte del set básico de iconos que trae Compose: viven en el paquete
+> *extendido*. Para usarlos añade en `app/build.gradle.kts`:
+> ```kotlin
+> implementation("androidx.compose.material:material-icons-extended")
+> ```
+> (Iconos como `Lock`, `Home`, `Search`, `Add`, `Email` o `Menu` sí están en el
+> set básico y no requieren nada extra). Lo ampliamos en la Guía 11.
+
+**¿Por qué recibir `valor` y `onValorCambiado` en vez de guardar el texto dentro
+del propio campo?** Es el patrón *state hoisting*: el estado "sube" al composable
+padre (o al ViewModel), y el `TextField` se vuelve una función pura de su
+entrada. Así el mismo campo se puede testear, previsualizar y reutilizar sin
+sorpresas. Regla práctica: **un composable que muestra estado no debería ser
+quien lo posee.**
+
 ---
 
 ## 3. Componentes de Selección (`Checkbox`, `RadioButton`, `Switch`, `Slider`)

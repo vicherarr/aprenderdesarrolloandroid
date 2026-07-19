@@ -35,32 +35,43 @@ Material 3 define cuatro tipos de barras superiores:
 | `MediumTopAppBar` | Título mediano que se colapsa al hacer scroll. |
 | `LargeTopAppBar` | Título grande que se colapsa en barra estándar al hacer scroll. |
 
-```kotlin
-val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+> ⚠️ **Opt-in obligatorio.** Las barras superiores (`TopAppBar`,
+> `CenterAlignedTopAppBar`, `MediumTopAppBar`, `LargeTopAppBar`) y sus
+> `scrollBehavior` todavía son API experimental de Material 3. La función que las
+> use **debe** anotarse con `@OptIn(ExperimentalMaterial3Api::class)` o no
+> compilará. No es que sean inestables en la práctica: es la forma en que Google
+> marca APIs cuya firma aún puede cambiar.
 
-Scaffold(
-    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-    topBar = {
-        LargeTopAppBar(
-            title = { Text("Mensajes") },
-            navigationIcon = {
-                IconButton(onClick = { /* Abrir menú */ }) {
-                    Icon(Icons.Default.Menu, contentDescription = "Menú")
-                }
-            },
-            actions = {
-                IconButton(onClick = { /* Buscar */ }) {
-                    Icon(Icons.Default.Search, contentDescription = "Buscar")
-                }
-            },
-            scrollBehavior = scrollBehavior
-        )
-    }
-) { innerPadding ->
-    // Lista scrolleable que colapsará el TopAppBar automáticamente
-    LazyColumn(contentPadding = innerPadding) {
-        items(50) { index ->
-            Text("Mensaje #$index", modifier = Modifier.padding(16.dp))
+```kotlin
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PantallaConColapso() {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            LargeTopAppBar(
+                title = { Text("Mensajes") },
+                navigationIcon = {
+                    IconButton(onClick = { /* Abrir menú */ }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menú")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* Buscar */ }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        }
+    ) { innerPadding ->
+        // Lista scrolleable que colapsará el TopAppBar automáticamente
+        LazyColumn(contentPadding = innerPadding) {
+            items(50) { index ->
+                Text("Mensaje #$index", modifier = Modifier.padding(16.dp))
+            }
         }
     }
 }
@@ -71,6 +82,7 @@ Scaffold(
 ## 3. Navegación Inferior (`NavigationBar`) y Menú Lateral (`ModalNavigationDrawer`)
 
 ```kotlin
+@OptIn(ExperimentalMaterial3Api::class) // por CenterAlignedTopAppBar
 @Composable
 fun AppConNavegacion() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
