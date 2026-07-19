@@ -72,6 +72,9 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 - [49-rendimiento-profiling-y-baseline-profiles.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/49-rendimiento-profiling-y-baseline-profiles.md) — Rendimiento, Profiling y Baseline Profiles (`LeakCanary` & `Macrobenchmark`).
 - [50-publicacion-google-play-aab-firmado.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/50-publicacion-google-play-aab-firmado.md) — Publicación y Distribución en Google Play Store (`.aab` y Play Console).
 
+### 📎 Anexos
+- [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.
+
 ---
 
 ## Requisitos del equipo
