@@ -10,6 +10,7 @@ terminal, sin depender de abrir Android Studio.
 | Android SDK | Plataformas, build-tools, emulador | `~/Android/Sdk` |
 | JDK (Java 21) | Ejecutar Gradle y compilar | JBR incluido con Android Studio |
 | cmdline-tools | `sdkmanager` y `avdmanager` | `~/Android/Sdk/cmdline-tools/latest` |
+| Android CLI | Binario `android`: andamiar proyectos, SDK, emuladores y despliegue en un solo comando | `~/.local/bin/android` |
 | Gradle | Sistema de construcción | No se instala: cada proyecto trae su *wrapper* (`./gradlew`) |
 
 > Android Studio está instalado con **JetBrains Toolbox**, por eso su JDK está en
@@ -57,6 +58,13 @@ java -version          # openjdk 21.x
 adb --version          # Android Debug Bridge ...
 sdkmanager --version   # 19.0 o superior
 sdkmanager --list_installed   # plataformas y build-tools instalados
+android --version      # 1.0.x — Android CLI de Google
+android info           # confirma que apunta a ~/Android/Sdk
 ```
 
-Si los cuatro comandos responden, el entorno está listo.
+Si todos los comandos responden, el entorno está listo.
+
+> **Android CLI** (herramienta reciente de Google, 2026) es opcional pero
+> recomendable: unifica `sdkmanager`, `avdmanager` y `adb` bajo el binario
+> `android`. Se descarga de <https://developer.android.com/tools/agents> y se
+> coloca en el `PATH`. La usamos en la Guía 02 para crear el proyecto.
