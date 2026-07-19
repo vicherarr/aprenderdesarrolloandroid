@@ -1,6 +1,6 @@
 # Aprender Desarrollo Android
 
-Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 51 guías paso a paso divididas en 9 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
+Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 52 guías paso a paso divididas en 9 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
 
 ---
 
@@ -74,6 +74,7 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 
 ### 🌊 Módulo IX: Programación Reactiva
 - [51-flows-programacion-reactiva.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/51-flows-programacion-reactiva.md) — Flows de Kotlin (`Flow`, `StateFlow`, `SharedFlow`, operadores y patrón Room→ViewModel→Compose).
+- [52-corrutinas.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/52-corrutinas.md) — Corrutinas de Kotlin (`suspend`, `launch`/`async`, `Dispatchers`, concurrencia estructurada, cancelación y errores).
 
 ### 📎 Anexos
 - [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.
