@@ -80,6 +80,7 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 - [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.
 - [anexo-02-kotlin-avanzado.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-02-kotlin-avanzado.md) — Kotlin Avanzado (lambdas, extensiones, `inline`/`reified`, genéricos, delegación, operadores).
 - [anexo-03-del-concepto-al-diseno.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-03-del-concepto-al-diseno.md) — Del Concepto al Diseño: proceso de la idea a la pantalla (investigación, MVP, flujos, wireframes, sistema de diseño M3).
+- [anexo-04-disenar-pantalla-recursos.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-04-disenar-pantalla-recursos.md) — Diseñar una Pantalla Bonita: consejos prácticos por pantalla y recursos de inspiración (color, tipografía, iconos, galerías).
 
 ---
 
