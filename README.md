@@ -1,6 +1,6 @@
 # Aprender Desarrollo Android
 
-Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 52 guías paso a paso divididas en 9 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
+Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos de ejemplo y 61 guías paso a paso divididas en 10 módulos estructurados de cero a senior, probadas en este mismo equipo (CachyOS + Android Studio + Android SDK cmdline-tools).
 
 ---
 
@@ -75,6 +75,17 @@ Repositorio de aprendizaje de desarrollo Android profesional. Contiene proyectos
 ### 🌊 Módulo IX: Programación Reactiva
 - [51-flows-programacion-reactiva.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/51-flows-programacion-reactiva.md) — Flows de Kotlin (`Flow`, `StateFlow`, `SharedFlow`, operadores y patrón Room→ViewModel→Compose).
 - [52-corrutinas.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/52-corrutinas.md) — Corrutinas de Kotlin (`suspend`, `launch`/`async`, `Dispatchers`, concurrencia estructurada, cancelación y errores).
+
+### ⌚ Módulo X: Wear OS (Smart Watches)
+- [53-wearos-introduccion-y-entorno.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/53-wearos-introduccion-y-entorno.md) — Introducción a Wear OS: arquitectura, superficies, standalone vs. dependiente y AVD de reloj.
+- [54-wearos-proyecto-y-compose.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/54-wearos-proyecto-y-compose.md) — Compose for Wear OS: dependencias, `AppScaffold`/`ScreenScaffold`, `TimeText` y listas curvas.
+- [55-wearos-componentes-ui-y-rotary.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/55-wearos-componentes-ui-y-rotary.md) — Componentes de UI del reloj (`EdgeButton`, `Picker`, `Card`, texto curvo) y entrada rotatoria (corona).
+- [56-wearos-tiles-y-complications.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/56-wearos-tiles-y-complications.md) — Superficies *glanceable*: Tiles (ProtoLayout) y Complications (data sources).
+- [57-wearos-health-services-y-sensores.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/57-wearos-health-services-y-sensores.md) — Health Services: frecuencia cardíaca, ejercicio (`ExerciseClient`) y monitorización pasiva.
+- [58-wearos-data-layer-reloj-telefono.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/58-wearos-data-layer-reloj-telefono.md) — Data Layer API: `MessageClient`, `DataClient`, `CapabilityClient` y `ChannelClient`.
+- [59-wearos-energia-notificaciones-y-ongoing.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/59-wearos-energia-notificaciones-y-ongoing.md) — Batería, modo ambiente/always-on, notificaciones y Ongoing Activity.
+- [60-wearos-watch-faces-y-publicacion.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/60-wearos-watch-faces-y-publicacion.md) — Watch Faces con Watch Face Format (WFF) y publicación de apps/esferas en Google Play.
+- [61-wearos-convivencia-con-app-movil.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/61-wearos-convivencia-con-app-movil.md) — Convivencia del módulo Wear OS con la app de smartphone: multi-módulo, código compartido, `applicationId`, firma y multi-APK.
 
 ### 📎 Anexos
 - [anexo-01-buenas-practicas-kotlin.md](file:///home/victor/develop/AprenderDesarrolloAndroid/guias/anexo-01-buenas-practicas-kotlin.md) — Buenas Prácticas con Kotlin.

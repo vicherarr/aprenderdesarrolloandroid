@@ -29,6 +29,24 @@ kotlinxCoroutinesTest = "1.8.1"
 # Turbine: 1.1.0 está compilada contra coroutines 1.8.0 (nuestra serie);
 # la 1.2.0 arrastra la 1.9.0 (verificado en su POM de Maven Central)
 turbine = "1.1.0"
+# --- Wear OS (Módulo X) — últimas estables en el Maven de Google (jul 2026) ---
+wearComposeM3 = "1.6.2"
+wearComposeNav = "1.6.2"
+wearToolingPreview = "1.0.0"
+# navigation-compose aporta el DSL composable()/NavType/navArgument que usa
+# SwipeDismissableNavHost (no viene transitivo desde wear compose-navigation)
+navigationCompose = "2.9.8"
+wear = "1.4.0"
+wearOngoing = "1.1.0"
+# El KTX de complications vive bajo androidx.wear.watchface (1.3.0 es estable)
+wearComplicationsKtx = "1.3.0"
+tiles = "1.6.1"
+protolayout = "1.4.1"
+# Health Services aún no tiene 1.0.0 estable; rc02 es la más reciente
+healthServices = "1.1.0-rc02"
+playServicesWearable = "20.0.1"
+# guava/play-services await(): misma serie de corrutinas que el proyecto (1.8.1)
+coroutinesGuava = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +80,24 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+# --- Wear OS (Módulo X) ---
+wear-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "wearComposeM3" }
+wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearComposeM3" }
+wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearComposeNav" }
+wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wearToolingPreview" }
+wear-compose-ui-tooling = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "wearComposeM3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
+wear-ongoing = { group = "androidx.wear", name = "wear-ongoing", version.ref = "wearOngoing" }
+wear-complications-data-source-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "wearComplicationsKtx" }
+wear-tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "tiles" }
+wear-tiles-material = { group = "androidx.wear.tiles", name = "tiles-material", version.ref = "tiles" }
+wear-protolayout = { group = "androidx.wear.protolayout", name = "protolayout", version.ref = "protolayout" }
+wear-protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version.ref = "protolayout" }
+health-services-client = { group = "androidx.health", name = "health-services-client", version.ref = "healthServices" }
+play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+kotlinx-coroutines-guava = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-guava", version.ref = "coroutinesGuava" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesGuava" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

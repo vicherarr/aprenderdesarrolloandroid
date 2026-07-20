@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "HolaAndroid"
 include(":app")
+include(":wear")
